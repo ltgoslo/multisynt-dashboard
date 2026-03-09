@@ -1,0 +1,44 @@
+{
+  "monotonicity": {
+    "enabled": true,
+    "minStep": 1000,
+    "maxStep": 45000,
+    "threshold": 0.25
+  },
+  "snr": {
+    "enabled": true,
+    "minStep": 5000,
+    "maxStep": 45000,
+    "threshold": 1
+  },
+  "cv": {
+    "enabled": false,
+    "minStep": 5000,
+    "maxStep": 50000,
+    "threshold": 15
+  },
+  "mad": {
+    "enabled": true,
+    "minStep": 5000,
+    "maxStep": 45000,
+    "threshold": 5
+  },
+  "consistency": {
+    "enabled": true,
+    "minStep": 5000,
+    "maxStep": 45000,
+    "threshold": 0
+  },
+  "promptSwitch": {
+    "enabled": false,
+    "minStep": 5000,
+    "maxStep": 50000,
+    "threshold": 20
+  },
+  "nonRandom": {
+    "enabled": true,
+    "minStep": 5000,
+    "maxStep": 45000,
+    "threshold": 5
+  }
+}
