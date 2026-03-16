@@ -2,7 +2,12 @@
 """Build consolidated data.json from multilingual evaluation results.
 
 Reads results from results/{Language}/{model}/{checkpoint}/{task}/{partition}/
-and aggregates across prompt/partition variants (p0, p1, p2).
+and aggregates across prompt/partition variants (p0, p1, p2, ...).
+
+Checkpoints are stored and output as token counts:
+  - Numeric step names (e.g. "0001000") are converted: tokens = step * TOKENS_PER_STEP
+  - Token-based names (e.g. "2B", "10B") are parsed directly as billions of tokens
+  - "main" is mapped to the maximum token count found across all models in the language
 
 Output: docs/data.json
 """
@@ -20,12 +25,36 @@ OUTPUT_FILE = BASE_DIR / "docs" / "data.json"
 
 SHOT_SETTINGS = ["0", "1", "5"]
 
+TOKENS_PER_STEP = 2048 * 1024  # 2,097,152 tokens per training step
+
+# Token count for "main" checkpoint of hplt3 (confirmed: 100B tokens)
+HPLT3_MAIN_TOKENS = 100_000_000_000
+
+
+def parse_checkpoint_tokens(ckpt_name):
+    """Parse a checkpoint directory name to a token count.
+
+    Returns:
+        int: token count
+        "main": for the "main" checkpoint
+        None: if the name is not parseable
+    """
+    if ckpt_name == "main":
+        return "main"
+    # Token-based format: "2B", "10B", "21B", etc.
+    if ckpt_name.endswith("B") and ckpt_name[:-1].isdigit():
+        return int(ckpt_name[:-1]) * 1_000_000_000
+    # Numeric step format: "0001000", "6000", "47684", etc.
+    if ckpt_name.isdigit():
+        return int(ckpt_name) * TOKENS_PER_STEP
+    return None
+
 
 # ── Per-language task configuration ──
 # main_metric, random_baseline, max_performance, metric_scale, category
 
 TASK_CONFIG = {
-    # French tasks
+    # ── French tasks ──────────────────────────────────────────────────────────
     "fquad": {
         "pretty_name": "FQuAD",
         "main_metric": "exact",
@@ -98,7 +127,7 @@ TASK_CONFIG = {
         "metric_scale": "unit",
         "category": "language understanding",
     },
-    # Spanish tasks
+    # ── Spanish tasks ─────────────────────────────────────────────────────────
     "cocoteros_es": {
         "pretty_name": "Cocoteros (Spanish)",
         "main_metric": "bleu",
@@ -227,10 +256,279 @@ TASK_CONFIG = {
         "metric_scale": "unit",
         "category": "language understanding",
     },
+    # ── Finnish tasks ─────────────────────────────────────────────────────────
+    # Each task comes in two formulations: cloze form (cf) and multiple-choice form (mcf)
+    "arc_challenge_fi_cf_fbv2": {
+        "pretty_name": "ARC Challenge FI (cloze)",
+        "main_metric": "acc_norm",
+        "random_baseline": 0.25,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "world knowledge",
+    },
+    "arc_challenge_fi_mcf_fbv2": {
+        "pretty_name": "ARC Challenge FI (MC)",
+        "main_metric": "acc_norm",
+        "random_baseline": 0.25,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "world knowledge",
+    },
+    "belebele_fin_cf_fbv2": {
+        "pretty_name": "Belebele FI (cloze)",
+        "main_metric": "acc",
+        "random_baseline": 0.25,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "language understanding",
+    },
+    "belebele_fin_mcf_fbv2": {
+        "pretty_name": "Belebele FI (MC)",
+        "main_metric": "acc",
+        "random_baseline": 0.25,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "language understanding",
+    },
+    "finbench_analogies_cf_fbv2": {
+        "pretty_name": "FinBench Analogies (cloze)",
+        "main_metric": "acc",
+        "random_baseline": 0.20,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "linguistic knowledge",
+    },
+    "finbench_analogies_mcf_fbv2": {
+        "pretty_name": "FinBench Analogies (MC)",
+        "main_metric": "acc",
+        "random_baseline": 0.20,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "linguistic knowledge",
+    },
+    "finbench_emotions_1k_cf_fbv2": {
+        "pretty_name": "FinBench Emotions (cloze)",
+        "main_metric": "acc",
+        "random_baseline": 0.125,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "language understanding",
+    },
+    "finbench_emotions_1k_mcf_fbv2": {
+        "pretty_name": "FinBench Emotions (MC)",
+        "main_metric": "acc",
+        "random_baseline": 0.125,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "language understanding",
+    },
+    "finbench_general_knowledge_cf_fbv2": {
+        "pretty_name": "FinBench General Knowledge (cloze)",
+        "main_metric": "acc",
+        "random_baseline": 0.133,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "world knowledge",
+    },
+    "finbench_general_knowledge_mcf_fbv2": {
+        "pretty_name": "FinBench General Knowledge (MC)",
+        "main_metric": "acc",
+        "random_baseline": 0.133,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "world knowledge",
+    },
+    "finbench_hhh_alignment_cf_fbv2": {
+        "pretty_name": "FinBench HHH Alignment (cloze)",
+        "main_metric": "acc",
+        "random_baseline": 0.5,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "language understanding",
+    },
+    "finbench_hhh_alignment_mcf_fbv2": {
+        "pretty_name": "FinBench HHH Alignment (MC)",
+        "main_metric": "acc",
+        "random_baseline": 0.5,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "language understanding",
+    },
+    "finbench_similarities_abstraction_cf_fbv2": {
+        "pretty_name": "FinBench Similarities (cloze)",
+        "main_metric": "acc",
+        "random_baseline": 0.25,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "linguistic knowledge",
+    },
+    "finbench_similarities_abstraction_mcf_fbv2": {
+        "pretty_name": "FinBench Similarities (MC)",
+        "main_metric": "acc",
+        "random_baseline": 0.25,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "linguistic knowledge",
+    },
+    "goldenswag_ht_fi_cf_fbv2": {
+        "pretty_name": "Goldenswag HT FI (cloze)",
+        "main_metric": "acc",
+        "random_baseline": 0.25,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "language understanding",
+    },
+    "goldenswag_ht_fi_mcf_fbv2": {
+        "pretty_name": "Goldenswag HT FI (MC)",
+        "main_metric": "acc",
+        "random_baseline": 0.25,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "language understanding",
+    },
+    # ── Norwegian tasks ───────────────────────────────────────────────────────
+    # nob = Bokmål, nno = Nynorsk
+    "norbelebele": {
+        "pretty_name": "Belebele (Norwegian)",
+        "main_metric": "acc",
+        "random_baseline": 0.25,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "language understanding",
+    },
+    "norcommonsenseqa_nno": {
+        "pretty_name": "CommonsenseQA NO (Nynorsk)",
+        "main_metric": "acc_norm",
+        "random_baseline": 0.20,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "language understanding",
+    },
+    "norcommonsenseqa_nob": {
+        "pretty_name": "CommonsenseQA NO (Bokmål)",
+        "main_metric": "acc_norm",
+        "random_baseline": 0.25,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "language understanding",
+    },
+    "norec_sentence": {
+        "pretty_name": "NorEC Sentiment",
+        "main_metric": "acc",
+        "random_baseline": 0.4852,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "language understanding",
+    },
+    "noridiom_nno": {
+        "pretty_name": "NorIdiom (Nynorsk)",
+        "main_metric": "fscore",
+        "random_baseline": 0.0,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "linguistic knowledge",
+    },
+    "noridiom_nob": {
+        "pretty_name": "NorIdiom (Bokmål)",
+        "main_metric": "fscore",
+        "random_baseline": 0.0,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "linguistic knowledge",
+    },
+    "noropenbookqa_nno": {
+        "pretty_name": "OpenBookQA NO (Nynorsk)",
+        "main_metric": "acc_norm",
+        "random_baseline": 0.20,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "world knowledge",
+    },
+    "noropenbookqa_nob": {
+        "pretty_name": "OpenBookQA NO (Bokmål)",
+        "main_metric": "acc_norm",
+        "random_baseline": 0.20,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "world knowledge",
+    },
+    "norquad": {
+        "pretty_name": "NorQuAD",
+        "main_metric": "f1",
+        "random_baseline": 0.0,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "language understanding",
+    },
+    "nortruthfulqa_gen_nno": {
+        "pretty_name": "TruthfulQA Gen NO (Nynorsk)",
+        "main_metric": "bleu_max",
+        "random_baseline": 0.0,
+        "max_performance": 100.0,
+        "metric_scale": "percent",
+        "category": "world knowledge",
+    },
+    "nortruthfulqa_gen_nob": {
+        "pretty_name": "TruthfulQA Gen NO (Bokmål)",
+        "main_metric": "bleu_max",
+        "random_baseline": 0.0,
+        "max_performance": 100.0,
+        "metric_scale": "percent",
+        "category": "world knowledge",
+    },
+    "nortruthfulqa_mc_nno": {
+        "pretty_name": "TruthfulQA MC NO (Nynorsk)",
+        "main_metric": "acc",
+        "random_baseline": 0.2456,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "world knowledge",
+    },
+    "nortruthfulqa_mc_nob": {
+        "pretty_name": "TruthfulQA MC NO (Bokmål)",
+        "main_metric": "acc",
+        "random_baseline": 0.254,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "world knowledge",
+    },
+    "nrk_quiz_qa_nno": {
+        "pretty_name": "NRK Quiz QA (Nynorsk)",
+        "main_metric": "acc",
+        "random_baseline": 0.2676,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "world knowledge",
+    },
+    "nrk_quiz_qa_nob": {
+        "pretty_name": "NRK Quiz QA (Bokmål)",
+        "main_metric": "acc",
+        "random_baseline": 0.2791,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "world knowledge",
+    },
+    "tatoeba_eng_nno": {
+        "pretty_name": "Tatoeba EN→Nynorsk",
+        "main_metric": "bleu",
+        "random_baseline": 0.0,
+        "max_performance": 100.0,
+        "metric_scale": "percent",
+        "category": "translation",
+    },
+    "tatoeba_eng_nob": {
+        "pretty_name": "Tatoeba EN→Bokmål",
+        "main_metric": "bleu",
+        "random_baseline": 0.0,
+        "max_performance": 100.0,
+        "metric_scale": "percent",
+        "category": "translation",
+    },
 }
 
 # Model display names and colors
 MODEL_CONFIG = {
+    # French/Spanish legacy names (kept for backward compatibility if dirs still exist)
     "ref_french_checkpoints": {
         "display_name": "HPLT French (reference)",
         "color": "#6366f1",
@@ -247,6 +545,27 @@ MODEL_CONFIG = {
         "display_name": "HPLT Spanish (synthetic)",
         "color": "#f43f5e",
     },
+    # New model names (shared across all languages)
+    "hplt2_checkpoints": {
+        "display_name": "HPLT2",
+        "color": "#6366f1",   # indigo
+    },
+    "hplt3_checkpoints": {
+        "display_name": "HPLT3",
+        "color": "#f43f5e",   # rose
+    },
+    "opus_checkpoints": {
+        "display_name": "OPUS-synth",
+        "color": "#10b981",   # emerald
+    },
+    "tower9b_checkpoints": {
+        "display_name": "Tower9B-synth",
+        "color": "#f59e0b",   # amber
+    },
+    "tower72b_checkpoints": {
+        "display_name": "Tower72B-synth",
+        "color": "#8b5cf6",   # violet
+    },
 }
 
 # Metrics to exclude globally
@@ -259,7 +578,7 @@ def find_latest_results_json(directory):
     simple = os.path.join(directory, "results.json")
     if os.path.isfile(simple):
         return simple
-    # Try nested results_*.json
+    # Try nested results_*.json (sorted lexicographically; timestamps sort correctly)
     pattern = os.path.join(directory, "**", "results_*.json")
     files = glob.glob(pattern, recursive=True)
     if not files:
@@ -371,7 +690,7 @@ def extract_benchmark_scores(results_json_path, benchmark_name, task_config_entr
 
 
 def aggregate_partitions(partition_metrics_list):
-    """Aggregate metrics across partitions (p0, p1, p2) like prompt variants.
+    """Aggregate metrics across partitions (p0, p1, p2, ...) like prompt variants.
 
     partition_metrics_list: list of {metric_name: (value, stderr)}
     Returns dict {metric_name: {"max": ..., "mean": ..., ...}}
@@ -446,7 +765,7 @@ def process_checkpoint(ckpt_path, task_configs):
         if not os.path.isdir(bench_path):
             continue
 
-        # Collect partitions
+        # Collect partitions (p0, p1, p2, p3, p4, ...)
         partitions = sorted(
             [
                 d
@@ -543,17 +862,14 @@ def main():
                 if not ckpt_path.is_dir() or ckpt_name.startswith("."):
                     continue
 
-                # Parse checkpoint step
-                if ckpt_name.isdigit():
-                    step = int(ckpt_name)
-                elif ckpt_name == "main":
-                    step = "main"
-                else:
+                tokens = parse_checkpoint_tokens(ckpt_name)
+                if tokens is None:
+                    print(f"    Skipping unrecognised checkpoint: {ckpt_name}")
                     continue
 
                 scores = process_checkpoint(str(ckpt_path), task_configs)
                 if scores:
-                    progress[step] = scores
+                    progress[tokens] = scores
                     # Track discovered metrics
                     for bench, shot_data in scores.items():
                         for shot, metric_data in shot_data.items():
@@ -591,16 +907,18 @@ def main():
                 "available_metrics": available_metrics,
             }
 
-        # Resolve "main" checkpoint: map it to the max numeric step across
-        # all models in this language (it's the final checkpoint)
-        max_numeric_step = 0
+        # Resolve "main" checkpoint: map it to the max token count found across
+        # all models in this language.
+        max_tokens = 0
         for md in lang_data["models"].values():
-            for step_key in md["progress"]:
-                if isinstance(step_key, int):
-                    max_numeric_step = max(max_numeric_step, step_key)
+            for token_key in md["progress"]:
+                if isinstance(token_key, int):
+                    max_tokens = max(max_tokens, token_key)
+        # For hplt3 "main", override with the confirmed 100B value if larger
+        max_tokens = max(max_tokens, HPLT3_MAIN_TOKENS)
         for md in lang_data["models"].values():
-            if "main" in md["progress"] and max_numeric_step > 0:
-                md["progress"][max_numeric_step] = md["progress"].pop("main")
+            if "main" in md["progress"]:
+                md["progress"][max_tokens] = md["progress"].pop("main")
 
         output["languages"][lang_name] = lang_data
 
@@ -614,8 +932,17 @@ def main():
         tasks = list(ld["metrics_setup"].keys())
         print(f"  {lang}: {len(models)} models, {len(tasks)} tasks")
         for m in models:
-            steps = sorted(ld["models"][m]["progress"].keys(), key=lambda x: (isinstance(x, str), x))
-            print(f"    {m}: {len(steps)} checkpoints")
+            steps = sorted(
+                ld["models"][m]["progress"].keys(),
+                key=lambda x: (isinstance(x, str), x),
+            )
+            n = len(steps)
+            if n:
+                lo = steps[0] / 1e9 if isinstance(steps[0], int) else steps[0]
+                hi = steps[-1] / 1e9 if isinstance(steps[-1], int) else steps[-1]
+                print(f"    {m}: {n} checkpoints ({lo:.1f}B – {hi:.1f}B tokens)")
+            else:
+                print(f"    {m}: 0 checkpoints")
 
 
 if __name__ == "__main__":

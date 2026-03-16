@@ -1,44 +1,44 @@
 {
   "monotonicity": {
     "enabled": true,
-    "minStep": 1000,
-    "maxStep": 45000,
+    "minTokens": 2097152000,
+    "maxTokens": 94371840000,
     "threshold": 0.25
   },
   "snr": {
     "enabled": true,
-    "minStep": 5000,
-    "maxStep": 45000,
+    "minTokens": 10485760000,
+    "maxTokens": 94371840000,
     "threshold": 1
   },
   "cv": {
     "enabled": false,
-    "minStep": 5000,
-    "maxStep": 50000,
+    "minTokens": 10485760000,
+    "maxTokens": 104857600000,
     "threshold": 15
   },
   "mad": {
     "enabled": false,
-    "minStep": 5000,
-    "maxStep": 50000,
+    "minTokens": 10485760000,
+    "maxTokens": 104857600000,
     "threshold": 5
   },
   "consistency": {
     "enabled": true,
-    "minStep": 5000,
-    "maxStep": 45000,
+    "minTokens": 10485760000,
+    "maxTokens": 94371840000,
     "threshold": 0.5
   },
   "promptSwitch": {
     "enabled": false,
-    "minStep": 5000,
-    "maxStep": 50000,
+    "minTokens": 10485760000,
+    "maxTokens": 104857600000,
     "threshold": 20
   },
   "nonRandom": {
     "enabled": true,
-    "minStep": 5000,
-    "maxStep": 45000,
+    "minTokens": 10485760000,
+    "maxTokens": 94371840000,
     "threshold": 5
   }
 }
