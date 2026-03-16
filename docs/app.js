@@ -12,48 +12,40 @@ let checkedTasks = new Set();
 const showStderr = true;
 let showPromptDeviation = true;
 
-// Token counts for filter window boundaries (converted from the original step values)
-// 1 step = 2048 * 1024 = 2,097,152 tokens
-const T_2B   =  2_097_152_000;   // step 1000  ≈ 2.1 B tokens
-const T_10B  = 10_485_760_000;   // step 5000  ≈ 10.5 B tokens
-const T_94B  = 94_371_840_000;   // step 45000 ≈ 94.4 B tokens
-const T_105B = 104_857_600_000;  // step 50000 ≈ 104.9 B tokens
-
 // HPLT-E quality filter state
-// minTokens / maxTokens are token counts (not steps)
 let filterCriteria = {
   monotonicity: {
-    enabled: true, minTokens: T_10B, maxTokens: T_105B, threshold: 0.5, direction: ">=",
-    label: "Monotonicity", description: "Spearman \u03C1 (tokens vs. score)",
-    tooltip: "Spearman rank correlation between token count and benchmark score. Measures whether performance improves monotonically during training. Default threshold: \u2265 0.5.",
+    enabled: true, minStep: 10, maxStep: 100, threshold: 0.5, direction: ">=",
+    label: "Monotonicity", description: "Spearman \u03C1 (step vs. score)",
+    tooltip: "Spearman rank correlation between checkpoint token count and benchmark score. Measures whether performance improves monotonically during training. Default threshold: \u2265 0.5.",
   },
   snr: {
-    enabled: false, minTokens: T_10B, maxTokens: T_105B, threshold: 3.0, direction: ">=",
+    enabled: false, minStep: 10, maxStep: 100, threshold: 3.0, direction: ">=",
     label: "Signal-to-noise ratio (SNR)", description: "Signal-to-noise ratio",
     tooltip: "Ratio of mean signal (score minus random baseline) to mean prompt standard deviation across checkpoints. Measures whether the benchmark signal is distinguishable from prompt-induced noise. Note: unlike the original HPLT-E implementation, the random baseline is subtracted from the signal so that chance-level performance yields SNR \u2248 0. Default threshold: \u2265 3.",
   },
   cv: {
-    enabled: false, minTokens: T_10B, maxTokens: T_105B, threshold: 15.0, direction: "<=",
+    enabled: false, minStep: 10, maxStep: 100, threshold: 15.0, direction: "<=",
     label: "Stable pretraining (CV)", description: "Coefficient of variation (%)",
     tooltip: "Standard deviation divided by mean score across checkpoints, as percentage. Measures score stability during training, following the original HPLT-E implementation. Default threshold: \u2264 15%.",
   },
   mad: {
-    enabled: false, minTokens: T_10B, maxTokens: T_105B, threshold: 5.0, direction: "<=",
+    enabled: false, minStep: 10, maxStep: 100, threshold: 5.0, direction: "<=",
     label: "Prompt sensitivity (MAD)", description: "Median MAD across prompts",
     tooltip: "Median Absolute Deviation of scores across prompt variants, taken as the median over all checkpoints. Default threshold: \u2264 5.",
   },
   consistency: {
-    enabled: false, minTokens: T_10B, maxTokens: T_105B, threshold: 0.5, direction: ">=",
+    enabled: false, minStep: 10, maxStep: 100, threshold: 0.5, direction: ">=",
     label: "Ranking consistency", description: "Kendall \u03C4 (model rankings)",
-    tooltip: "Average Kendall\u2019s Tau correlation of model rankings between successive checkpoints. Measures whether the relative ordering of models is preserved across training. Scores are linearly interpolated where models lack an exact checkpoint. Default threshold: \u2265 0.5.",
+    tooltip: "Average Kendall\u2019s Tau correlation of model rankings between successive checkpoints. Measures whether the relative ordering of models is preserved across training. Default threshold: \u2265 0.5.",
   },
   promptSwitch: {
-    enabled: false, minTokens: T_10B, maxTokens: T_105B, threshold: 20.0, direction: "<=",
+    enabled: false, minStep: 10, maxStep: 100, threshold: 20.0, direction: "<=",
     label: "Prompt-switch rate", description: "Best-prompt change rate (%)",
     tooltip: "Fraction of checkpoints where the best-performing prompt variant changes, as a percentage.",
   },
   nonRandom: {
-    enabled: false, minTokens: T_10B, maxTokens: T_105B, threshold: 5.0, direction: ">=",
+    enabled: false, minStep: 10, maxStep: 100, threshold: 5.0, direction: ">=",
     label: "Non-randomness", description: "Max score \u2212 random baseline",
     tooltip: "Difference between the maximum score and the task\u2019s random baseline. Verifies the model learned beyond chance. Default threshold: \u2265 5.",
   },
@@ -62,43 +54,24 @@ let filterResults = {}; // {bench: {criterionName: {value, pass}}}
 let allFilterBenchmarks = new Set();
 
 // Per-language default filter criteria overrides (keys not listed use the global defaults above)
-// All token window bounds are in token counts (not steps).
 const FILTER_DEFAULTS = {
   French: {
-    monotonicity: { enabled: true,  minTokens: T_2B,  maxTokens: T_94B,  threshold: 0.25 },
-    snr:          { enabled: true,  minTokens: T_10B, maxTokens: T_94B,  threshold: 1    },
-    cv:           { enabled: false, minTokens: T_10B, maxTokens: T_105B, threshold: 15   },
-    mad:          { enabled: false, minTokens: T_10B, maxTokens: T_105B, threshold: 5    },
-    consistency:  { enabled: true,  minTokens: T_10B, maxTokens: T_94B,  threshold: 0.5  },
-    promptSwitch: { enabled: false, minTokens: T_10B, maxTokens: T_105B, threshold: 20   },
-    nonRandom:    { enabled: true,  minTokens: T_10B, maxTokens: T_94B,  threshold: 5    },
+    monotonicity: { enabled: true, minStep: 2, maxStep: 95, threshold: 0.25 },
+    snr: { enabled: true, minStep: 10, maxStep: 95, threshold: 1 },
+    cv: { enabled: false, minStep: 10, maxStep: 100, threshold: 15 },
+    mad: { enabled: false, minStep: 10, maxStep: 100, threshold: 5 },
+    consistency: { enabled: true, minStep: 10, maxStep: 95, threshold: 0.5 },
+    promptSwitch: { enabled: false, minStep: 10, maxStep: 100, threshold: 20 },
+    nonRandom: { enabled: true, minStep: 10, maxStep: 95, threshold: 5 },
   },
   Spanish: {
-    monotonicity: { enabled: true,  minTokens: T_2B,  maxTokens: T_94B,  threshold: 0.25 },
-    snr:          { enabled: true,  minTokens: T_10B, maxTokens: T_94B,  threshold: 1    },
-    cv:           { enabled: false, minTokens: T_10B, maxTokens: T_105B, threshold: 15   },
-    mad:          { enabled: true,  minTokens: T_10B, maxTokens: T_94B,  threshold: 5    },
-    consistency:  { enabled: true,  minTokens: T_10B, maxTokens: T_94B,  threshold: 0    },
-    promptSwitch: { enabled: false, minTokens: T_10B, maxTokens: T_105B, threshold: 20   },
-    nonRandom:    { enabled: true,  minTokens: T_10B, maxTokens: T_94B,  threshold: 5    },
-  },
-  Finnish: {
-    monotonicity: { enabled: true,  minTokens: T_2B,  maxTokens: T_94B,  threshold: 0.25 },
-    snr:          { enabled: true,  minTokens: T_10B, maxTokens: T_94B,  threshold: 1    },
-    cv:           { enabled: false, minTokens: T_10B, maxTokens: T_105B, threshold: 15   },
-    mad:          { enabled: true,  minTokens: T_10B, maxTokens: T_94B,  threshold: 5    },
-    consistency:  { enabled: true,  minTokens: T_10B, maxTokens: T_94B,  threshold: 0    },
-    promptSwitch: { enabled: false, minTokens: T_10B, maxTokens: T_105B, threshold: 20   },
-    nonRandom:    { enabled: true,  minTokens: T_10B, maxTokens: T_94B,  threshold: 5    },
-  },
-  Norwegian: {
-    monotonicity: { enabled: true,  minTokens: T_2B,  maxTokens: T_94B,  threshold: 0.25 },
-    snr:          { enabled: true,  minTokens: T_10B, maxTokens: T_94B,  threshold: 1    },
-    cv:           { enabled: false, minTokens: T_10B, maxTokens: T_105B, threshold: 15   },
-    mad:          { enabled: true,  minTokens: T_10B, maxTokens: T_94B,  threshold: 5    },
-    consistency:  { enabled: true,  minTokens: T_10B, maxTokens: T_94B,  threshold: 0    },
-    promptSwitch: { enabled: false, minTokens: T_10B, maxTokens: T_105B, threshold: 20   },
-    nonRandom:    { enabled: true,  minTokens: T_10B, maxTokens: T_94B,  threshold: 5    },
+    monotonicity: { enabled: true, minStep: 2, maxStep: 95, threshold: 0.25 },
+    snr: { enabled: true, minStep: 10, maxStep: 95, threshold: 1 },
+    cv: { enabled: false, minStep: 10, maxStep: 100, threshold: 15 },
+    mad: { enabled: true, minStep: 10, maxStep: 95, threshold: 5 },
+    consistency: { enabled: true, minStep: 10, maxStep: 95, threshold: 0 },
+    promptSwitch: { enabled: false, minStep: 10, maxStep: 100, threshold: 20 },
+    nonRandom: { enabled: true, minStep: 10, maxStep: 95, threshold: 5 },
   },
 };
 
@@ -109,8 +82,8 @@ function applyFilterDefaults(lang) {
     if (!filterCriteria[name]) continue;
     const cfg = filterCriteria[name];
     cfg.enabled = vals.enabled;
-    cfg.minTokens = vals.minTokens;
-    cfg.maxTokens = vals.maxTokens;
+    cfg.minStep = vals.minStep;
+    cfg.maxStep = vals.maxStep;
     cfg.threshold = vals.threshold;
   }
 }
@@ -786,28 +759,6 @@ function attachTooltip(element, contentFn) {
 }
 
 // ============================================================
-// Token axis helpers
-// ============================================================
-
-function formatTokens(t) {
-  if (t == null) return "";
-  const b = t / 1e9;
-  return b >= 10 ? Math.round(b) + "B" : b.toFixed(1) + "B";
-}
-
-function getTokenAxisConfig(tokens) {
-  // tokens: sorted array of all x-axis values
-  const maxT = tokens.length ? Math.max(...tokens) : 100e9;
-  const step = maxT <= 20e9 ? 2e9 : maxT <= 50e9 ? 5e9 : 10e9;
-  const tickvals = [], ticktext = [];
-  for (let t = 0; t <= maxT * 1.05 + step; t += step) {
-    tickvals.push(t);
-    ticktext.push(t === 0 ? "0" : Math.round(t / 1e9) + "B");
-  }
-  return { tickvals, ticktext };
-}
-
-// ============================================================
 // Chart rendering
 // ============================================================
 
@@ -854,8 +805,7 @@ function onChartHover(data) {
   } else {
     body = "Score: " + scoreStr + seStr;
   }
-  const tokensLabel = formatTokens(pt.x);
-  const title = (pt.data.name || "") + " \u2014 " + tokensLabel;
+  const title = (pt.data.name || "") + " \u2014 Step " + pt.x;
   showTooltip(data.event, title, body, "", "");
 }
 
@@ -936,7 +886,7 @@ function makeBandTrace(xValues, yValues, seValues, color) {
   };
 }
 
-function getModelTokens(modelDir) {
+function getModelSteps(modelDir) {
   const progress = getModels()[modelDir].progress;
   return Object.keys(progress)
     .filter((k) => k !== "main" && !isNaN(Number(k)))
@@ -944,13 +894,43 @@ function getModelTokens(modelDir) {
     .sort((a, b) => a - b);
 }
 
-function getAllTokens() {
+function getAllSteps() {
   const models = getModels();
-  const all = new Set();
+  const allSteps = new Set();
   for (const m of Object.keys(models)) {
-    for (const t of getModelTokens(m)) all.add(t);
+    for (const s of getModelSteps(m)) allSteps.add(s);
   }
-  return [...all].sort((a, b) => a - b);
+  return [...allSteps].sort((a, b) => a - b);
+}
+
+/**
+ * Linearly interpolate a model's score at a given token value.
+ * If the token value exactly matches a checkpoint, returns the exact score.
+ * Otherwise, interpolates between the two nearest checkpoints.
+ * Returns null if the token value is outside the model's checkpoint range.
+ */
+function interpolateScore(progressData, modelSteps, tokenVal, benchmark, shot, metric) {
+  // Exact match
+  const exact = progressData[String(tokenVal)]?.[benchmark]?.[shot]?.[metric];
+  if (exact !== undefined && exact !== null) {
+    const rawScore = typeof exact === "number" ? exact : exact[currentPromptAgg];
+    return rawScore;
+  }
+  // Find bracketing checkpoints
+  let lo = null, hi = null;
+  for (const s of modelSteps) {
+    if (s <= tokenVal) lo = s;
+    if (s >= tokenVal && hi === null) hi = s;
+  }
+  if (lo === null || hi === null || lo === hi) return null;
+  const loObj = progressData[String(lo)]?.[benchmark]?.[shot]?.[metric];
+  const hiObj = progressData[String(hi)]?.[benchmark]?.[shot]?.[metric];
+  if (!loObj || !hiObj) return null;
+  const loScore = typeof loObj === "number" ? loObj : loObj[currentPromptAgg];
+  const hiScore = typeof hiObj === "number" ? hiObj : hiObj[currentPromptAgg];
+  if (loScore == null || hiScore == null) return null;
+  const t = (tokenVal - lo) / (hi - lo);
+  return loScore + t * (hiScore - loScore);
 }
 
 function renderAggregateProgressChart() {
@@ -963,7 +943,7 @@ function renderAggregateProgressChart() {
   // Compute y-range across all shots for stable axes
   for (const shot of ALL_SHOTS) {
     for (const [modelDir, modelData] of Object.entries(models)) {
-      const steps = getModelTokens(modelDir);
+      const steps = getModelSteps(modelDir);
       for (const step of steps) {
         const result = aggregateScores(checkedTasks, (bench) => {
           const raw = getScore(modelData.progress, step, bench, shot);
@@ -977,7 +957,7 @@ function renderAggregateProgressChart() {
   const yRange = computeYRange(allYValues);
 
   for (const [modelDir, modelData] of Object.entries(models)) {
-    const steps = getModelTokens(modelDir);
+    const steps = getModelSteps(modelDir);
     const color = modelData.color || MODEL_COLORS[0];
 
     const aggResults = steps.map((step) => {
@@ -1010,11 +990,9 @@ function renderAggregateProgressChart() {
   const taskLabel = currentTaskSelection === "__filtered__"
     ? checkedTasks.size + " signal-filtered tasks"
     : "all tasks";
-  const allToks = getAllTokens();
-  const { tickvals, ticktext } = getTokenAxisConfig(allToks);
   const layout = getPlotlyLayout({
     title: { text: currentLang + " \u2014 " + taskLabel + " \u2014 " + avgLabel + " (" + currentShot + "-shot)", font: { size: 16 } },
-    xaxis: { title: "training tokens", tickvals, ticktext },
+    xaxis: { title: "tokens (B)" },
     yaxis: { title: getNormYLabel(), range: yRange },
     legend: {
       x: 0.01, y: 0.99, xanchor: "left", yanchor: "top",
@@ -1036,7 +1014,7 @@ function renderSingleProgressChart(benchmark) {
   // y-range across all shots
   for (const shot of ALL_SHOTS) {
     for (const [modelDir, modelData] of Object.entries(models)) {
-      for (const step of getModelTokens(modelDir)) {
+      for (const step of getModelSteps(modelDir)) {
         const raw = getScore(modelData.progress, step, benchmark, shot, metric);
         if (raw != null) {
           allYValues.push(currentNormalization === "none"
@@ -1049,7 +1027,7 @@ function renderSingleProgressChart(benchmark) {
   const yRange = currentNormalization === "none" ? [0, computeYMax(allYValues)] : computeYRange(allYValues);
 
   for (const [modelDir, modelData] of Object.entries(models)) {
-    const steps = getModelTokens(modelDir);
+    const steps = getModelSteps(modelDir);
     const color = modelData.color || MODEL_COLORS[0];
     const ys = steps.map((s) => {
       const raw = getScore(modelData.progress, s, benchmark, currentShot, metric);
@@ -1076,11 +1054,9 @@ function renderSingleProgressChart(benchmark) {
   }
 
   const yLabel = currentPromptAgg === "stdev" ? getNormYLabel() : (currentNormalization === "none" ? getMetricYLabel(benchmark, metric) : getNormYLabel());
-  const allToks = getAllTokens();
-  const { tickvals, ticktext } = getTokenAxisConfig(allToks);
   const layout = getPlotlyLayout({
     title: { text: currentLang + " \u2014 " + info.pretty_name + " (" + currentShot + "-shot)", font: { size: 16 } },
-    xaxis: { title: "training tokens", tickvals, ticktext },
+    xaxis: { title: "tokens (B)" },
     yaxis: { title: yLabel, range: yRange },
     legend: {
       x: 0.01, y: 0.99, xanchor: "left", yanchor: "top",
@@ -1189,40 +1165,6 @@ function filterNoiseScale(benchmark) {
   return info.metric_scale === "unit" ? 100 : 1;
 }
 
-// Return a score object for a model at an arbitrary token count, using linear
-// interpolation between the two nearest real checkpoints when an exact match
-// is absent.  Returns undefined if the token count is outside the model's range
-// or the required data is missing.
-function interpolateProgressScore(progressData, tokenCount, benchmark, shot, metric) {
-  // Exact match first
-  const exact = progressData[String(tokenCount)]?.[benchmark]?.[shot]?.[metric];
-  if (exact !== undefined) return exact;
-
-  // Collect token counts that have the required data
-  const available = [];
-  for (const k of Object.keys(progressData)) {
-    if (k === "main" || isNaN(Number(k))) continue;
-    const obj = progressData[k]?.[benchmark]?.[shot]?.[metric];
-    if (obj !== undefined && obj[currentPromptAgg] != null) available.push(Number(k));
-  }
-  available.sort((a, b) => a - b);
-
-  // Find surrounding brackets
-  let lo = null, hi = null;
-  for (const t of available) {
-    if (t < tokenCount) lo = t;
-    else if (t > tokenCount && hi === null) { hi = t; break; }
-  }
-  if (lo === null || hi === null) return undefined;
-
-  const s0 = progressData[String(lo)][benchmark][shot][metric][currentPromptAgg];
-  const s1 = progressData[String(hi)][benchmark][shot][metric][currentPromptAgg];
-  if (s0 == null || s1 == null) return undefined;
-
-  const frac = (tokenCount - lo) / (hi - lo);
-  return { [currentPromptAgg]: s0 + frac * (s1 - s0) };
-}
-
 function computeFilterCriteriaForBench(benchmark, shot) {
   // Compute each criterion per model, then take the median across models (HPLT-E approach)
   // All criteria are computed on raw percentage-scale scores (not baseline-normalized)
@@ -1235,35 +1177,40 @@ function computeFilterCriteriaForBench(benchmark, shot) {
   const results = {};
 
   for (const [name, cfg] of Object.entries(filterCriteria)) {
-    // Ordering consistency is a cross-model criterion (ranks models at each token point).
-    // Models may have checkpoints at different token counts, so scores are linearly
-    // interpolated where a model lacks an exact checkpoint.
+    // Ordering consistency is a cross-model criterion (ranks models at each step)
+    // Uses interpolation since models may have different checkpoint token values
     if (name === "consistency") {
-      const windowTokens = getAllTokens().filter((t) => t >= cfg.minTokens && t <= cfg.maxTokens);
-      if (windowTokens.length < 2 || modelDirs.length < 2) {
+      const windowSteps = getAllSteps().filter((s) => s >= cfg.minStep && s <= cfg.maxStep);
+      if (windowSteps.length < 2 || modelDirs.length < 2) {
         results[name] = { value: null, pass: null };
         continue;
       }
-      const tokenRankings = [];
-      for (const tok of windowTokens) {
+      // Pre-compute each model's sorted steps for interpolation
+      const modelStepsMap = {};
+      for (const modelDir of modelDirs) {
+        modelStepsMap[modelDir] = getModelSteps(modelDir);
+      }
+      const stepRankings = [];
+      for (const step of windowSteps) {
         const scores = [];
         let valid = true;
         for (const modelDir of modelDirs) {
-          const obj = interpolateProgressScore(models[modelDir].progress, tok, benchmark, shot, mainMetric);
-          if (!obj) { valid = false; break; }
-          const rawScore = obj[currentPromptAgg];
+          const rawScore = interpolateScore(
+            models[modelDir].progress, modelStepsMap[modelDir],
+            step, benchmark, shot, mainMetric
+          );
           if (rawScore == null) { valid = false; break; }
           scores.push(filterDisplayScale(rawScore, benchmark));
         }
-        if (valid) tokenRankings.push(scores);
+        if (valid) stepRankings.push(scores);
       }
-      if (tokenRankings.length < 2) {
+      if (stepRankings.length < 2) {
         results[name] = { value: null, pass: null };
         continue;
       }
       const taus = [];
-      for (let i = 0; i < tokenRankings.length - 1; i++) {
-        const tau = computeKendallTau(tokenRankings[i], tokenRankings[i + 1]);
+      for (let i = 0; i < stepRankings.length - 1; i++) {
+        const tau = computeKendallTau(stepRankings[i], stepRankings[i + 1]);
         taus.push(tau != null ? tau : 0);
       }
       const value = taus.reduce((a, b) => a + b, 0) / taus.length;
@@ -1274,18 +1221,18 @@ function computeFilterCriteriaForBench(benchmark, shot) {
     const perModelValues = [];
     for (const modelDir of modelDirs) {
       const progressData = models[modelDir].progress;
-      const modelTokens = Object.keys(progressData)
+      const steps = Object.keys(progressData)
         .filter((k) => k !== "main" && !isNaN(Number(k)))
         .map(Number).sort((a, b) => a - b);
-      const windowTokens = modelTokens.filter((t) => t >= cfg.minTokens && t <= cfg.maxTokens);
+      const windowSteps = steps.filter((s) => s >= cfg.minStep && s <= cfg.maxStep);
       const pairs = [];
-      for (const t of windowTokens) {
-        const obj = progressData[String(t)]?.[benchmark]?.[shot]?.[mainMetric];
+      for (const s of windowSteps) {
+        const obj = progressData[String(s)]?.[benchmark]?.[shot]?.[mainMetric];
         if (!obj) continue;
         const rawScore = obj[currentPromptAgg];
         if (rawScore == null) continue;
         const score = filterDisplayScale(rawScore, benchmark);
-        pairs.push({ step: t, score, rawScore, obj });
+        pairs.push({ step: s, score, rawScore, obj });
       }
       if (pairs.length < 3 && name !== "nonRandom") continue;
       if (pairs.length < 1) continue;
@@ -1409,16 +1356,16 @@ function renderFilterPanel() {
     const controls = document.createElement("div");
     controls.className = "filter-criterion-controls";
     const minLabel = document.createElement("label");
-    minLabel.textContent = "B tokens: ";
+    minLabel.textContent = "Tokens (B): ";
     const minInput = document.createElement("input");
-    minInput.type = "number"; minInput.value = Math.round(cfg.minTokens / 1e9); minInput.min = 1; minInput.max = 200; minInput.step = 1;
-    minInput.addEventListener("change", () => { cfg.minTokens = (parseInt(minInput.value) || 1) * 1e9; runFilter(); renderChart(); pushStateToURL(); });
+    minInput.type = "number"; minInput.value = cfg.minStep; minInput.min = 0; minInput.max = 120; minInput.step = 1;
+    minInput.addEventListener("change", () => { cfg.minStep = parseFloat(minInput.value) || 0; runFilter(); renderChart(); pushStateToURL(); });
     minLabel.appendChild(minInput); controls.appendChild(minLabel);
     const dash = document.createElement("span"); dash.textContent = "\u2013"; dash.style.color = "var(--fg-muted)";
     controls.appendChild(dash);
     const maxInput = document.createElement("input");
-    maxInput.type = "number"; maxInput.value = Math.round(cfg.maxTokens / 1e9); maxInput.min = 1; maxInput.max = 200; maxInput.step = 1;
-    maxInput.addEventListener("change", () => { cfg.maxTokens = (parseInt(maxInput.value) || 100) * 1e9; runFilter(); renderChart(); pushStateToURL(); });
+    maxInput.type = "number"; maxInput.value = cfg.maxStep; maxInput.min = 0; maxInput.max = 120; maxInput.step = 1;
+    maxInput.addEventListener("change", () => { cfg.maxStep = parseFloat(maxInput.value) || 100; runFilter(); renderChart(); pushStateToURL(); });
     controls.appendChild(maxInput);
     const threshLabel = document.createElement("label");
     threshLabel.textContent = "Threshold " + cfg.direction + " ";
@@ -1539,7 +1486,7 @@ function hideFilterUI() {
 function exportFilterCriteria() {
   const data = {};
   for (const [name, cfg] of Object.entries(filterCriteria)) {
-    data[name] = { enabled: cfg.enabled, minTokens: cfg.minTokens, maxTokens: cfg.maxTokens, threshold: cfg.threshold };
+    data[name] = { enabled: cfg.enabled, minStep: cfg.minStep, maxStep: cfg.maxStep, threshold: cfg.threshold };
   }
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -1556,8 +1503,8 @@ function importFilterCriteria(json) {
     if (!filterCriteria[name]) continue;
     const cfg = filterCriteria[name];
     if (typeof vals.enabled === "boolean") cfg.enabled = vals.enabled;
-    if (typeof vals.minTokens === "number") cfg.minTokens = vals.minTokens;
-    if (typeof vals.maxTokens === "number") cfg.maxTokens = vals.maxTokens;
+    if (typeof vals.minStep === "number") cfg.minStep = vals.minStep;
+    if (typeof vals.maxStep === "number") cfg.maxStep = vals.maxStep;
     if (typeof vals.threshold === "number") cfg.threshold = vals.threshold;
   }
   filterPanelRendered = false;
@@ -1582,10 +1529,10 @@ function pushStateToURL() {
   p.set("norm", currentNormalization);
   if (currentMetric) p.set("metric", currentMetric);
   p.set("pdev", showPromptDeviation ? "1" : "0");
-  // Encode filter criteria compactly: name=enabled,minTokens,maxTokens,thresh
+  // Encode filter criteria compactly: name=enabled,min,max,thresh
   const fc = [];
   for (const [name, cfg] of Object.entries(filterCriteria)) {
-    fc.push(name + ":" + (cfg.enabled ? "1" : "0") + "," + cfg.minTokens + "," + cfg.maxTokens + "," + cfg.threshold);
+    fc.push(name + ":" + (cfg.enabled ? "1" : "0") + "," + cfg.minStep + "," + cfg.maxStep + "," + cfg.threshold);
   }
   p.set("fc", fc.join(";"));
   history.replaceState(null, "", "?" + p.toString());
@@ -1610,8 +1557,8 @@ function restoreStateFromURL() {
       const [en, min, max, thresh] = vals.split(",");
       const cfg = filterCriteria[name];
       cfg.enabled = en === "1";
-      if (!isNaN(Number(min))) cfg.minTokens = Number(min);
-      if (!isNaN(Number(max))) cfg.maxTokens = Number(max);
+      if (!isNaN(Number(min))) cfg.minStep = Number(min);
+      if (!isNaN(Number(max))) cfg.maxStep = Number(max);
       if (!isNaN(Number(thresh))) cfg.threshold = Number(thresh);
     }
   }
