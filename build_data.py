@@ -210,7 +210,7 @@ TASK_CONFIG = {
     },
     "veritasqa_es_gen": {
         "pretty_name": "TruthfulQA Gen (Spanish)",
-        "main_metric": "bleu_max",
+        "main_metric": "rougeL_max",
         "random_baseline": 0.0,
         "max_performance": 100.0,
         "metric_scale": "percent",
@@ -402,7 +402,7 @@ TASK_CONFIG = {
         "random_baseline": 0.20,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "language understanding",
+        "category": "world knowledge",
     },
     "norcommonsenseqa_nob": {
         "pretty_name": "CommonsenseQA NO (Bokmål)",
@@ -410,10 +410,10 @@ TASK_CONFIG = {
         "random_baseline": 0.25,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "language understanding",
+        "category": "world knowledge",
     },
     "norec_sentence": {
-        "pretty_name": "NorEC Sentiment",
+        "pretty_name": "NoReC Sentiment",
         "main_metric": "acc",
         "random_baseline": 0.4852,
         "max_performance": 1.0,
@@ -422,7 +422,7 @@ TASK_CONFIG = {
     },
     "noridiom_nno": {
         "pretty_name": "NorIdiom (Nynorsk)",
-        "main_metric": "fscore",
+        "main_metric": "em_first",
         "random_baseline": 0.0,
         "max_performance": 1.0,
         "metric_scale": "unit",
@@ -430,7 +430,7 @@ TASK_CONFIG = {
     },
     "noridiom_nob": {
         "pretty_name": "NorIdiom (Bokmål)",
-        "main_metric": "fscore",
+        "main_metric": "em_first",
         "random_baseline": 0.0,
         "max_performance": 1.0,
         "metric_scale": "unit",
@@ -442,7 +442,7 @@ TASK_CONFIG = {
         "random_baseline": 0.20,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "language understanding",
     },
     "noropenbookqa_nob": {
         "pretty_name": "OpenBookQA NO (Bokmål)",
@@ -450,7 +450,7 @@ TASK_CONFIG = {
         "random_baseline": 0.20,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "language understanding",
     },
     "norquad": {
         "pretty_name": "NorQuAD",
@@ -462,7 +462,7 @@ TASK_CONFIG = {
     },
     "nortruthfulqa_gen_nno": {
         "pretty_name": "TruthfulQA Gen NO (Nynorsk)",
-        "main_metric": "bleu_max",
+        "main_metric": "rougeL_max",
         "random_baseline": 0.0,
         "max_performance": 100.0,
         "metric_scale": "percent",
@@ -470,7 +470,7 @@ TASK_CONFIG = {
     },
     "nortruthfulqa_gen_nob": {
         "pretty_name": "TruthfulQA Gen NO (Bokmål)",
-        "main_metric": "bleu_max",
+        "main_metric": "rougeL_max",
         "random_baseline": 0.0,
         "max_performance": 100.0,
         "metric_scale": "percent",
