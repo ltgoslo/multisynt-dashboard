@@ -109,7 +109,7 @@ TASK_CONFIG = {
         "random_baseline": 0.25,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "include_french": {
         "pretty_name": "IncludeFrench",
@@ -117,7 +117,7 @@ TASK_CONFIG = {
         "random_baseline": 0.25,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "topic_based_nli": {
         "pretty_name": "Topic-Based NLI",
@@ -166,7 +166,7 @@ TASK_CONFIG = {
         "random_baseline": 0.25,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "include_spanish": {
         "pretty_name": "IncludeSpanish",
@@ -174,7 +174,7 @@ TASK_CONFIG = {
         "random_baseline": 0.25,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "mgsm_direct_es": {
         "pretty_name": "MGSM Direct (Spanish)",
@@ -190,7 +190,7 @@ TASK_CONFIG = {
         "random_baseline": 0.25,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "paws_es": {
         "pretty_name": "PAWS (Spanish)",
@@ -214,7 +214,7 @@ TASK_CONFIG = {
         "random_baseline": 0.0,
         "max_performance": 100.0,
         "metric_scale": "percent",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "veritasqa_es_mc1": {
         "pretty_name": "TruthfulQA MC1 (Spanish)",
@@ -222,7 +222,7 @@ TASK_CONFIG = {
         "random_baseline": 0.243,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "veritasqa_es_mc2": {
         "pretty_name": "TruthfulQA MC2 (Spanish)",
@@ -230,7 +230,7 @@ TASK_CONFIG = {
         "random_baseline": 0.154,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "xnli_es": {
         "pretty_name": "XNLI (Spanish)",
@@ -264,7 +264,7 @@ TASK_CONFIG = {
         "random_baseline": 0.25,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "arc_challenge_fi_mcf_fbv2": {
         "pretty_name": "ARC Challenge FI (MC)",
@@ -272,7 +272,7 @@ TASK_CONFIG = {
         "random_baseline": 0.25,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "belebele_fin_cf_fbv2": {
         "pretty_name": "Belebele FI (cloze)",
@@ -296,7 +296,7 @@ TASK_CONFIG = {
         "random_baseline": 0.20,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "linguistic knowledge",
+        "category": "language understanding",
     },
     "finbench_analogies_mcf_fbv2": {
         "pretty_name": "FinBench Analogies (MC)",
@@ -304,7 +304,7 @@ TASK_CONFIG = {
         "random_baseline": 0.20,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "linguistic knowledge",
+        "category": "language understanding",
     },
     "finbench_emotions_1k_cf_fbv2": {
         "pretty_name": "FinBench Emotions (cloze)",
@@ -328,7 +328,7 @@ TASK_CONFIG = {
         "random_baseline": 0.133,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "finbench_general_knowledge_mcf_fbv2": {
         "pretty_name": "FinBench General Knowledge (MC)",
@@ -336,7 +336,7 @@ TASK_CONFIG = {
         "random_baseline": 0.133,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "finbench_hhh_alignment_cf_fbv2": {
         "pretty_name": "FinBench HHH Alignment (cloze)",
@@ -344,7 +344,7 @@ TASK_CONFIG = {
         "random_baseline": 0.5,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "language understanding",
+        "category": "safety & alignment",
     },
     "finbench_hhh_alignment_mcf_fbv2": {
         "pretty_name": "FinBench HHH Alignment (MC)",
@@ -352,7 +352,7 @@ TASK_CONFIG = {
         "random_baseline": 0.5,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "language understanding",
+        "category": "safety & alignment",
     },
     "finbench_similarities_abstraction_cf_fbv2": {
         "pretty_name": "FinBench Similarities (cloze)",
@@ -360,7 +360,7 @@ TASK_CONFIG = {
         "random_baseline": 0.25,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "linguistic knowledge",
+        "category": "world knowledge & reasoning",
     },
     "finbench_similarities_abstraction_mcf_fbv2": {
         "pretty_name": "FinBench Similarities (MC)",
@@ -368,7 +368,7 @@ TASK_CONFIG = {
         "random_baseline": 0.25,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "linguistic knowledge",
+        "category": "world knowledge & reasoning",
     },
     "goldenswag_ht_fi_cf_fbv2": {
         "pretty_name": "Goldenswag HT FI (cloze)",
@@ -402,7 +402,7 @@ TASK_CONFIG = {
         "random_baseline": 0.20,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "norcommonsenseqa_nob": {
         "pretty_name": "CommonsenseQA NO (Bokmål)",
@@ -410,7 +410,7 @@ TASK_CONFIG = {
         "random_baseline": 0.25,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "norec_sentence": {
         "pretty_name": "NoReC Sentiment",
@@ -466,7 +466,7 @@ TASK_CONFIG = {
         "random_baseline": 0.0,
         "max_performance": 100.0,
         "metric_scale": "percent",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "nortruthfulqa_gen_nob": {
         "pretty_name": "TruthfulQA Gen NO (Bokmål)",
@@ -474,7 +474,7 @@ TASK_CONFIG = {
         "random_baseline": 0.0,
         "max_performance": 100.0,
         "metric_scale": "percent",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "nortruthfulqa_mc_nno": {
         "pretty_name": "TruthfulQA MC NO (Nynorsk)",
@@ -482,7 +482,7 @@ TASK_CONFIG = {
         "random_baseline": 0.2456,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "nortruthfulqa_mc_nob": {
         "pretty_name": "TruthfulQA MC NO (Bokmål)",
@@ -490,7 +490,7 @@ TASK_CONFIG = {
         "random_baseline": 0.254,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "nrk_quiz_qa_nno": {
         "pretty_name": "NRK Quiz QA (Nynorsk)",
@@ -498,7 +498,7 @@ TASK_CONFIG = {
         "random_baseline": 0.2676,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "nrk_quiz_qa_nob": {
         "pretty_name": "NRK Quiz QA (Bokmål)",
@@ -506,7 +506,7 @@ TASK_CONFIG = {
         "random_baseline": 0.2791,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "tatoeba_eng_nno": {
         "pretty_name": "Tatoeba EN→Nynorsk",
