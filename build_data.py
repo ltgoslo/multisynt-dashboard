@@ -26,7 +26,8 @@ TOKENS_PER_STEP = 2048 * 1024
 
 def step_to_tokens_b(step):
     """Convert training step number to billions of tokens."""
-    return round(step * TOKENS_PER_STEP / 1e9, 1)
+    val = round(step * TOKENS_PER_STEP / 1e9, 1)
+    return int(val) if val == int(val) else val
 
 
 def parse_checkpoint_name(name):
@@ -39,7 +40,7 @@ def parse_checkpoint_name(name):
         return step_to_tokens_b(int(name))
     upper = name.upper()
     if upper.endswith("B") and upper[:-1].isdigit():
-        return float(upper[:-1])
+        return int(upper[:-1])
     if name == "main":
         return "main"
     return None
@@ -335,16 +336,16 @@ TASK_CONFIG = {
         "pretty_name": "TruthfulQA Gen (Nynorsk)",
         "main_metric": "bleu_max",
         "random_baseline": 0.0,
-        "max_performance": 1.0,
-        "metric_scale": "unit",
+        "max_performance": 100.0,
+        "metric_scale": "percent",
         "category": "world knowledge",
     },
     "nortruthfulqa_gen_nob": {
         "pretty_name": "TruthfulQA Gen (Bokmål)",
         "main_metric": "bleu_max",
         "random_baseline": 0.0,
-        "max_performance": 1.0,
-        "metric_scale": "unit",
+        "max_performance": 100.0,
+        "metric_scale": "percent",
         "category": "world knowledge",
     },
     "nortruthfulqa_mc_nno": {
