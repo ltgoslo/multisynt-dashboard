@@ -183,8 +183,8 @@ TASK_CONFIG = {
         "pretty_name": "TruthfulQA Gen (Finnish)",
         "main_metric": "bleu_max",
         "random_baseline": 0.0,
-        "max_performance": 1.0,
-        "metric_scale": "unit",
+        "max_performance": 100.0,
+        "metric_scale": "percent",
         "category": "world knowledge",
     },
     "ogx_truthfulqax_mc1_fi_fbv2": {
