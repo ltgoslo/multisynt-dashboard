@@ -18,7 +18,7 @@ BASE_DIR = Path(__file__).parent
 RESULTS_DIR = BASE_DIR / "results"
 OUTPUT_FILE = BASE_DIR / "docs" / "data.json"
 
-SHOT_SETTINGS = ["0", "1", "5"]
+SHOT_SETTINGS = ["0", "5"]
 
 # Batch size: 2048 sequences * 1024 tokens = 2,097,152 tokens per step
 TOKENS_PER_STEP = 2048 * 1024
@@ -178,7 +178,87 @@ TASK_CONFIG = {
         "metric_scale": "unit",
         "category": "language understanding",
     },
+    "ogx_truthfulqax_gen_fi_fbv2": {
+        "pretty_name": "TruthfulQA Gen (Finnish)",
+        "main_metric": "bleu_max",
+        "random_baseline": 0.0,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "world knowledge",
+    },
+    "ogx_truthfulqax_mc1_fi_fbv2": {
+        "pretty_name": "TruthfulQA MC1 (Finnish)",
+        "main_metric": "acc",
+        "random_baseline": 0.25,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "world knowledge",
+    },
+    "ogx_truthfulqax_mc2_fi_fbv2": {
+        "pretty_name": "TruthfulQA MC2 (Finnish)",
+        "main_metric": "acc",
+        "random_baseline": 0.5,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "world knowledge",
+    },
+    "scandisent_fi_cf_fbv2": {
+        "pretty_name": "ScandiSent (Finnish, CF)",
+        "main_metric": "acc",
+        "random_baseline": 1 / 3,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "language understanding",
+    },
+    "scandisent_fi_mcf_fbv2": {
+        "pretty_name": "ScandiSent (Finnish, MCF)",
+        "main_metric": "acc",
+        "random_baseline": 1 / 3,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "language understanding",
+    },
+    "sib200_fi_cf_fbv2": {
+        "pretty_name": "SIB-200 (Finnish, CF)",
+        "main_metric": "acc",
+        "random_baseline": 1 / 7,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "language understanding",
+    },
+    "sib200_fi_mcf_fbv2": {
+        "pretty_name": "SIB-200 (Finnish, MCF)",
+        "main_metric": "acc",
+        "random_baseline": 1 / 7,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "language understanding",
+    },
+    "squad_fi_gen_fbv2": {
+        "pretty_name": "SQuAD (Finnish, Gen)",
+        "main_metric": "f1",
+        "random_baseline": 0.0,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "language understanding",
+    },
     # ── Norwegian tasks ──
+    "ask_gec": {
+        "pretty_name": "ASK GEC",
+        "main_metric": "exact_match",
+        "random_baseline": 0.0,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "linguistic knowledge",
+    },
+    "ncb": {
+        "pretty_name": "NCB (Norwegian Cloze)",
+        "main_metric": "acc",
+        "random_baseline": 0.5,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "language understanding",
+    },
     "norbelebele": {
         "pretty_name": "Belebele (Norwegian)",
         "main_metric": "acc",
@@ -299,6 +379,38 @@ TASK_CONFIG = {
         "metric_scale": "unit",
         "category": "world knowledge",
     },
+    "norrewrite_instruct": {
+        "pretty_name": "NorRewrite Instruct",
+        "main_metric": "bleu",
+        "random_baseline": 0.0,
+        "max_performance": 100.0,
+        "metric_scale": "percent",
+        "category": "generation & summarization",
+    },
+    "norsumm_nno": {
+        "pretty_name": "NorSumm (Nynorsk)",
+        "main_metric": "rougeL_max",
+        "random_baseline": 0.0,
+        "max_performance": 100.0,
+        "metric_scale": "percent",
+        "category": "generation & summarization",
+    },
+    "norsumm_nob": {
+        "pretty_name": "NorSumm (Bokmål)",
+        "main_metric": "rougeL_max",
+        "random_baseline": 0.0,
+        "max_performance": 100.0,
+        "metric_scale": "percent",
+        "category": "generation & summarization",
+    },
+    "norsummarize_instruct": {
+        "pretty_name": "NorSummarize Instruct",
+        "main_metric": "bleu",
+        "random_baseline": 0.0,
+        "max_performance": 100.0,
+        "metric_scale": "percent",
+        "category": "generation & summarization",
+    },
     "tatoeba_eng_nno": {
         "pretty_name": "Tatoeba (EN→Nynorsk)",
         "main_metric": "bleu",
@@ -315,7 +427,63 @@ TASK_CONFIG = {
         "metric_scale": "percent",
         "category": "translation",
     },
+    "tatoeba_nno_eng": {
+        "pretty_name": "Tatoeba (Nynorsk→EN)",
+        "main_metric": "bleu",
+        "random_baseline": 0.0,
+        "max_performance": 100.0,
+        "metric_scale": "percent",
+        "category": "translation",
+    },
+    "tatoeba_nob_eng": {
+        "pretty_name": "Tatoeba (Bokmål→EN)",
+        "main_metric": "bleu",
+        "random_baseline": 0.0,
+        "max_performance": 100.0,
+        "metric_scale": "percent",
+        "category": "translation",
+    },
     # ── French tasks ──
+    "french_bench_arc_challenge": {
+        "pretty_name": "French Bench ARC Challenge",
+        "main_metric": "acc",
+        "random_baseline": 0.25,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "world knowledge",
+    },
+    "french_bench_boolqa": {
+        "pretty_name": "French Bench BoolQ",
+        "main_metric": "acc",
+        "random_baseline": 0.5,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "language understanding",
+    },
+    "french_bench_hellaswag": {
+        "pretty_name": "French Bench HellaSwag",
+        "main_metric": "acc_norm",
+        "random_baseline": 0.25,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "language understanding",
+    },
+    "french_bench_multifquad": {
+        "pretty_name": "French Bench MultiFQuAD",
+        "main_metric": "exact",
+        "random_baseline": 0.0,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "language understanding",
+    },
+    "french_bench_trivia": {
+        "pretty_name": "French Bench Trivia",
+        "main_metric": "exact",
+        "random_baseline": 0.0,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "world knowledge",
+    },
     "fquad": {
         "pretty_name": "FQuAD",
         "main_metric": "exact",
@@ -387,6 +555,22 @@ TASK_CONFIG = {
         "max_performance": 1.0,
         "metric_scale": "unit",
         "category": "language understanding",
+    },
+    "wmt14-en-fr": {
+        "pretty_name": "WMT14 (EN→FR)",
+        "main_metric": "bleu",
+        "random_baseline": 0.0,
+        "max_performance": 100.0,
+        "metric_scale": "percent",
+        "category": "translation",
+    },
+    "wmt14-fr-en": {
+        "pretty_name": "WMT14 (FR→EN)",
+        "main_metric": "bleu",
+        "random_baseline": 0.0,
+        "max_performance": 100.0,
+        "metric_scale": "percent",
+        "category": "translation",
     },
     # Spanish tasks
     "cocoteros_es": {
@@ -519,29 +703,44 @@ TASK_CONFIG = {
     },
 }
 
-# Model display names and colors
+# Model display names and colors (keyed by base model name without shot/checkpoints suffix)
 MODEL_CONFIG = {
-    "hplt2_checkpoints": {
+    "hplt2": {
         "display_name": "HPLT v2",
         "color": "#6366f1",
     },
-    "hplt3_checkpoints": {
+    "hplt3": {
         "display_name": "HPLT v3",
         "color": "#8b5cf6",
     },
-    "opus_checkpoints": {
+    "opus": {
         "display_name": "OPUS",
         "color": "#f43f5e",
     },
-    "tower9b_checkpoints": {
+    "tower9b": {
         "display_name": "Tower 9B",
         "color": "#10b981",
     },
-    "tower72b_checkpoints": {
+    "tower72b": {
         "display_name": "Tower 72B",
         "color": "#f59e0b",
     },
 }
+
+
+def parse_model_dir(name):
+    """Parse model directory name to (base_model, shot_setting).
+
+    E.g. 'hplt2_0shot_checkpoints' -> ('hplt2', '0')
+         'tower72B_5shot_checkpoints' -> ('tower72b', '5')
+    Returns (None, None) if the name doesn't match the expected pattern.
+    """
+    import re
+
+    m = re.match(r"^(.+?)_(\d+)shot_checkpoints$", name, re.IGNORECASE)
+    if m:
+        return m.group(1).lower(), m.group(2)
+    return None, None
 
 # Metrics to exclude globally
 EXCLUDED_METRICS = {"bleu_diff", "rouge1_diff", "rouge2_diff", "rougeL_diff"}
@@ -729,10 +928,10 @@ def aggregate_partitions(partition_metrics_list):
     return out
 
 
-def process_checkpoint(ckpt_path, task_configs):
+def process_checkpoint(ckpt_path, task_configs, shot="0"):
     """Process a single checkpoint directory.
 
-    Returns {benchmark: {"0": {metric: {...}}, ...}}
+    Returns {benchmark: {shot: {metric: {...}}}}
     """
     scores = {}
     for benchmark, config in task_configs.items():
@@ -740,7 +939,7 @@ def process_checkpoint(ckpt_path, task_configs):
         if not os.path.isdir(bench_path):
             continue
 
-        # Collect partitions
+        # Collect partitions (p0, p1, p2, ...)
         partitions = sorted(
             [
                 d
@@ -750,26 +949,33 @@ def process_checkpoint(ckpt_path, task_configs):
                 and d[1:].isdigit()
             ]
         )
-        if not partitions:
-            continue
 
-        # Each partition is like a prompt variant
         partition_results = []
-        for part in partitions:
-            part_path = os.path.join(bench_path, part)
-            results_file = find_latest_results_json(part_path)
-            if results_file is None:
-                continue
-            metrics = extract_benchmark_scores(results_file, benchmark, config)
-            partition_results.append(metrics)
+        if partitions:
+            # Each partition is like a prompt variant
+            for part in partitions:
+                part_path = os.path.join(bench_path, part)
+                results_file = find_latest_results_json(part_path)
+                if results_file is None:
+                    continue
+                metrics = extract_benchmark_scores(results_file, benchmark, config)
+                partition_results.append(metrics)
+        else:
+            # No partition dirs — look for results directly under bench_path
+            results_file = find_latest_results_json(bench_path)
+            if results_file is not None:
+                metrics = extract_benchmark_scores(
+                    results_file, benchmark, config
+                )
+                if metrics:
+                    partition_results.append(metrics)
 
         if not partition_results:
             continue
 
         agg = aggregate_partitions(partition_results)
         if agg is not None:
-            # All partitions are 0-shot currently (no shot subdirectories)
-            scores[benchmark] = {"0": agg}
+            scores[benchmark] = {shot: agg}
 
     return scores
 
@@ -819,42 +1025,66 @@ def main():
             "models": {},
         }
 
-        # Process each model
+        # Group model directories by base model name
+        # e.g. hplt2_0shot_checkpoints + hplt2_5shot_checkpoints -> hplt2
+        model_groups = {}  # base_model -> [(model_dir_name, shot, path), ...]
         for model_dir in sorted(os.listdir(lang_dir)):
             model_path = lang_dir / model_dir
             if not model_path.is_dir() or model_dir.startswith("."):
                 continue
+            base_model, shot = parse_model_dir(model_dir)
+            if base_model is None:
+                print(f"  WARNING: Cannot parse model dir '{model_dir}', skipping")
+                continue
+            if base_model not in model_groups:
+                model_groups[base_model] = []
+            model_groups[base_model].append((model_dir, shot, model_path))
 
-            model_cfg = MODEL_CONFIG.get(model_dir, {})
-            display_name = model_cfg.get("display_name", model_dir)
+        # Process each base model (merging shot variants)
+        for base_model in sorted(model_groups):
+            model_cfg = MODEL_CONFIG.get(base_model, {})
+            display_name = model_cfg.get("display_name", base_model)
             color = model_cfg.get("color", "#6366f1")
 
-            print(f"  Model: {model_dir} ({display_name})")
+            print(f"  Model: {base_model} ({display_name})")
 
             progress = {}
-            for ckpt_name in sorted(os.listdir(model_path)):
-                ckpt_path = model_path / ckpt_name
-                if not ckpt_path.is_dir() or ckpt_name.startswith("."):
-                    continue
+            for model_dir, shot, model_path in model_groups[base_model]:
+                print(f"    Shot setting: {shot}-shot ({model_dir})")
 
-                # Parse checkpoint name to billions of tokens (or "main")
-                step = parse_checkpoint_name(ckpt_name)
-                if step is None:
-                    continue
+                for ckpt_name in sorted(os.listdir(model_path)):
+                    ckpt_path = model_path / ckpt_name
+                    if not ckpt_path.is_dir() or ckpt_name.startswith("."):
+                        continue
 
-                scores = process_checkpoint(str(ckpt_path), task_configs)
-                if scores:
-                    progress[step] = scores
-                    # Track discovered metrics
-                    for bench, shot_data in scores.items():
-                        for shot, metric_data in shot_data.items():
-                            if bench not in discovered_metrics:
-                                discovered_metrics[bench] = set()
-                            discovered_metrics[bench].update(metric_data.keys())
+                    step = parse_checkpoint_name(ckpt_name)
+                    if step is None:
+                        continue
 
-                print(f"    Checkpoint {ckpt_name}: {len(scores)} tasks")
+                    scores = process_checkpoint(
+                        str(ckpt_path), task_configs, shot=shot
+                    )
+                    if scores:
+                        # Merge into progress: each benchmark gets its shot data
+                        if step not in progress:
+                            progress[step] = {}
+                        for bench, shot_data in scores.items():
+                            if bench not in progress[step]:
+                                progress[step][bench] = {}
+                            progress[step][bench].update(shot_data)
+                            # Track discovered metrics
+                            for s, metric_data in shot_data.items():
+                                if bench not in discovered_metrics:
+                                    discovered_metrics[bench] = set()
+                                discovered_metrics[bench].update(
+                                    metric_data.keys()
+                                )
 
-            lang_data["models"][model_dir] = {
+                    print(
+                        f"      Checkpoint {ckpt_name}: {len(scores)} tasks"
+                    )
+
+            lang_data["models"][base_model] = {
                 "display_name": display_name,
                 "color": color,
                 "progress": progress,

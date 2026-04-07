@@ -3,7 +3,7 @@
 
 let DATA = null;
 let currentLang = null; // set on init from first language
-let currentShot = "0";
+let currentShot = "5";
 let currentTaskSelection = "__filtered__";
 let currentPromptAgg = "max";
 let currentNormalization = "baseline";
@@ -98,18 +98,23 @@ const METRIC_DISPLAY = {
   em: "exact match", exact_match: "exact match", exact: "exact match",
   fscore: "F-score", bleu: "BLEU", bleu_max: "BLEU (best ref.)",
   bleu_avg: "BLEU (avg ref.)", bleu_acc: "BLEU accuracy", chrf: "chrF",
+  ter: "TER", is_included: "inclusion rate",
   rougeL_max: "ROUGE-L (best ref.)", rougeL_avg: "ROUGE-L (avg ref.)",
   rougeL_acc: "ROUGE-L accuracy", rouge1_max: "ROUGE-1 (best ref.)",
   rouge1_acc: "ROUGE-1 accuracy", rouge2_max: "ROUGE-2 (best ref.)",
-  rouge2_acc: "ROUGE-2 accuracy", mcc: "MCC",
+  rouge2_acc: "ROUGE-2 accuracy", rouge1: "ROUGE-1",
+  bertscore_f1_max: "BERTScore F1 (best ref.)",
+  bertscore_f1_avg: "BERTScore F1 (avg ref.)", mcc: "MCC",
 };
 
 const METRIC_SCALES = {
   acc: "unit", acc_norm: "unit", f1: "unit", em: "unit", exact: "unit",
   exact_match: "unit", fscore: "unit", bleu_acc: "unit", rougeL_acc: "unit",
-  rouge1_acc: "unit", rouge2_acc: "unit", mcc: "unit",
+  rouge1_acc: "unit", rouge2_acc: "unit", mcc: "unit", is_included: "unit",
+  bertscore_f1_max: "unit", bertscore_f1_avg: "unit",
   bleu: "percent", bleu_max: "percent", bleu_avg: "percent",
-  chrf: "percent", rougeL_max: "percent", rougeL_avg: "percent",
+  chrf: "percent", ter: "percent", rouge1: "percent",
+  rougeL_max: "percent", rougeL_avg: "percent",
   rouge1_max: "percent", rouge2_max: "percent",
 };
 
