@@ -314,7 +314,7 @@ TASK_CONFIG = {
         "random_baseline": 0.20,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "language understanding",
     },
     "noropenbookqa_nob": {
         "pretty_name": "OpenBookQA (Bokmål)",
@@ -322,7 +322,7 @@ TASK_CONFIG = {
         "random_baseline": 0.20,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "language understanding",
     },
     "norquad": {
         "pretty_name": "NorQuAD",
