@@ -258,7 +258,7 @@ TASK_CONFIG = {
         "random_baseline": 0.5,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "language understanding",
+        "category": "linguistic knowledge",
     },
     "norbelebele": {
         "pretty_name": "Belebele (Norwegian)",
