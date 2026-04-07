@@ -810,7 +810,7 @@ function onChartHover(data) {
   } else {
     body = "Score: " + scoreStr + seStr;
   }
-  const title = (pt.data.name || "") + " \u2014 Step " + pt.x;
+  const title = (pt.data.name || "") + " \u2014 " + pt.x + "B tokens";
   showTooltip(data.event, title, body, "", "");
 }
 
