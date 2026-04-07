@@ -15,37 +15,37 @@ let showPromptDeviation = true;
 // HPLT-E quality filter state
 let filterCriteria = {
   monotonicity: {
-    enabled: true, minStep: 10, maxStep: 100, threshold: 0.5, direction: ">=",
-    label: "Monotonicity", description: "Spearman \u03C1 (step vs. score)",
+    enabled: true, minTokens: 10, maxTokens: 100, threshold: 0.5, direction: ">=",
+    label: "Monotonicity", description: "Spearman \u03C1 (tokens vs. score)",
     tooltip: "Spearman rank correlation between checkpoint token count and benchmark score. Measures whether performance improves monotonically during training. Default threshold: \u2265 0.5.",
   },
   snr: {
-    enabled: false, minStep: 10, maxStep: 100, threshold: 3.0, direction: ">=",
+    enabled: false, minTokens: 10, maxTokens: 100, threshold: 3.0, direction: ">=",
     label: "Signal-to-noise ratio (SNR)", description: "Signal-to-noise ratio",
     tooltip: "Ratio of mean signal (score minus random baseline) to mean prompt standard deviation across checkpoints. Measures whether the benchmark signal is distinguishable from prompt-induced noise. Note: unlike the original HPLT-E implementation, the random baseline is subtracted from the signal so that chance-level performance yields SNR \u2248 0. Default threshold: \u2265 3.",
   },
   cv: {
-    enabled: false, minStep: 10, maxStep: 100, threshold: 15.0, direction: "<=",
+    enabled: false, minTokens: 10, maxTokens: 100, threshold: 15.0, direction: "<=",
     label: "Stable pretraining (CV)", description: "Coefficient of variation (%)",
     tooltip: "Standard deviation divided by mean score across checkpoints, as percentage. Measures score stability during training, following the original HPLT-E implementation. Default threshold: \u2264 15%.",
   },
   mad: {
-    enabled: false, minStep: 10, maxStep: 100, threshold: 5.0, direction: "<=",
+    enabled: false, minTokens: 10, maxTokens: 100, threshold: 5.0, direction: "<=",
     label: "Prompt sensitivity (MAD)", description: "Median MAD across prompts",
     tooltip: "Median Absolute Deviation of scores across prompt variants, taken as the median over all checkpoints. Default threshold: \u2264 5.",
   },
   consistency: {
-    enabled: false, minStep: 10, maxStep: 100, threshold: 0.5, direction: ">=",
+    enabled: false, minTokens: 10, maxTokens: 100, threshold: 0.5, direction: ">=",
     label: "Ranking consistency", description: "Kendall \u03C4 (model rankings)",
     tooltip: "Average Kendall\u2019s Tau correlation of model rankings between successive checkpoints. Measures whether the relative ordering of models is preserved across training. Default threshold: \u2265 0.5.",
   },
   promptSwitch: {
-    enabled: false, minStep: 10, maxStep: 100, threshold: 20.0, direction: "<=",
+    enabled: false, minTokens: 10, maxTokens: 100, threshold: 20.0, direction: "<=",
     label: "Prompt-switch rate", description: "Best-prompt change rate (%)",
     tooltip: "Fraction of checkpoints where the best-performing prompt variant changes, as a percentage.",
   },
   nonRandom: {
-    enabled: false, minStep: 10, maxStep: 100, threshold: 5.0, direction: ">=",
+    enabled: false, minTokens: 10, maxTokens: 100, threshold: 5.0, direction: ">=",
     label: "Non-randomness", description: "Max score \u2212 random baseline",
     tooltip: "Difference between the maximum score and the task\u2019s random baseline. Verifies the model learned beyond chance. Default threshold: \u2265 5.",
   },
@@ -56,22 +56,22 @@ let allFilterBenchmarks = new Set();
 // Per-language default filter criteria overrides (keys not listed use the global defaults above)
 const FILTER_DEFAULTS = {
   French: {
-    monotonicity: { enabled: true, minStep: 2, maxStep: 95, threshold: 0.25 },
-    snr: { enabled: true, minStep: 10, maxStep: 95, threshold: 1 },
-    cv: { enabled: false, minStep: 10, maxStep: 100, threshold: 15 },
-    mad: { enabled: false, minStep: 10, maxStep: 100, threshold: 5 },
-    consistency: { enabled: true, minStep: 10, maxStep: 95, threshold: 0.5 },
-    promptSwitch: { enabled: false, minStep: 10, maxStep: 100, threshold: 20 },
-    nonRandom: { enabled: true, minStep: 10, maxStep: 95, threshold: 5 },
+    monotonicity: { enabled: true, minTokens: 2, maxTokens: 95, threshold: 0.25 },
+    snr: { enabled: true, minTokens: 10, maxTokens: 95, threshold: 1 },
+    cv: { enabled: false, minTokens: 10, maxTokens: 100, threshold: 15 },
+    mad: { enabled: false, minTokens: 10, maxTokens: 100, threshold: 5 },
+    consistency: { enabled: true, minTokens: 10, maxTokens: 95, threshold: 0.5 },
+    promptSwitch: { enabled: false, minTokens: 10, maxTokens: 100, threshold: 20 },
+    nonRandom: { enabled: true, minTokens: 10, maxTokens: 95, threshold: 5 },
   },
   Spanish: {
-    monotonicity: { enabled: true, minStep: 2, maxStep: 95, threshold: 0.25 },
-    snr: { enabled: true, minStep: 10, maxStep: 95, threshold: 1 },
-    cv: { enabled: false, minStep: 10, maxStep: 100, threshold: 15 },
-    mad: { enabled: true, minStep: 10, maxStep: 95, threshold: 5 },
-    consistency: { enabled: true, minStep: 10, maxStep: 95, threshold: 0 },
-    promptSwitch: { enabled: false, minStep: 10, maxStep: 100, threshold: 20 },
-    nonRandom: { enabled: true, minStep: 10, maxStep: 95, threshold: 5 },
+    monotonicity: { enabled: true, minTokens: 2, maxTokens: 95, threshold: 0.25 },
+    snr: { enabled: true, minTokens: 10, maxTokens: 95, threshold: 1 },
+    cv: { enabled: false, minTokens: 10, maxTokens: 100, threshold: 15 },
+    mad: { enabled: true, minTokens: 10, maxTokens: 95, threshold: 5 },
+    consistency: { enabled: true, minTokens: 10, maxTokens: 95, threshold: 0 },
+    promptSwitch: { enabled: false, minTokens: 10, maxTokens: 100, threshold: 20 },
+    nonRandom: { enabled: true, minTokens: 10, maxTokens: 95, threshold: 5 },
   },
 };
 
@@ -82,8 +82,8 @@ function applyFilterDefaults(lang) {
     if (!filterCriteria[name]) continue;
     const cfg = filterCriteria[name];
     cfg.enabled = vals.enabled;
-    cfg.minStep = vals.minStep;
-    cfg.maxStep = vals.maxStep;
+    cfg.minTokens = vals.minTokens;
+    cfg.maxTokens = vals.maxTokens;
     cfg.threshold = vals.threshold;
   }
 }
@@ -201,36 +201,36 @@ function hexToRgba(hex, alpha) {
 // Score access (prompt aggregation aware)
 // ============================================================
 
-function getScore(progressData, step, bench, shot, metric) {
+function getScore(progressData, checkpoint, bench, shot, metric) {
   metric = metric || getMetricsSetup()[bench]?.main_metric;
-  const obj = progressData[step]?.[bench]?.[shot]?.[metric];
+  const obj = progressData[checkpoint]?.[bench]?.[shot]?.[metric];
   if (obj === undefined || obj === null) return undefined;
   if (typeof obj === "number") return currentPromptAgg === "stdev" ? 0 : obj;
   if (currentPromptAgg === "stdev") return obj.prompt_sd != null ? obj.prompt_sd : undefined;
   return obj[currentPromptAgg];
 }
 
-function getStderr(progressData, step, bench, shot, metric) {
+function getStderr(progressData, checkpoint, bench, shot, metric) {
   metric = metric || getMetricsSetup()[bench]?.main_metric;
-  const obj = progressData[step]?.[bench]?.[shot]?.[metric];
+  const obj = progressData[checkpoint]?.[bench]?.[shot]?.[metric];
   if (!obj || typeof obj === "number") return undefined;
   const se = obj[currentPromptAgg + "_stderr"];
   return (se !== undefined && se !== null) ? se : undefined;
 }
 
-function getPromptSE(progressData, step, bench, shot, metric) {
+function getPromptSE(progressData, checkpoint, bench, shot, metric) {
   metric = metric || getMetricsSetup()[bench]?.main_metric;
-  const obj = progressData[step]?.[bench]?.[shot]?.[metric];
+  const obj = progressData[checkpoint]?.[bench]?.[shot]?.[metric];
   if (!obj || typeof obj === "number") return undefined;
   const sd = obj.prompt_sd, n = obj.n_prompts;
   if (sd == null || n == null || n < 2) return undefined;
   return sd / Math.sqrt(n);
 }
 
-function getCombinedSE(progressData, step, bench, shot, metric) {
+function getCombinedSE(progressData, checkpoint, bench, shot, metric) {
   if (currentPromptAgg === "stdev") return undefined;
-  const sampSe = showStderr ? getStderr(progressData, step, bench, shot, metric) : undefined;
-  const promptSe = showPromptDeviation ? getPromptSE(progressData, step, bench, shot, metric) : undefined;
+  const sampSe = showStderr ? getStderr(progressData, checkpoint, bench, shot, metric) : undefined;
+  const promptSe = showPromptDeviation ? getPromptSE(progressData, checkpoint, bench, shot, metric) : undefined;
   if (sampSe == null && promptSe == null) return undefined;
   return Math.sqrt((sampSe || 0) ** 2 + (promptSe || 0) ** 2);
 }
@@ -891,7 +891,7 @@ function makeBandTrace(xValues, yValues, seValues, color) {
   };
 }
 
-function getModelSteps(modelDir) {
+function getModelTokens(modelDir) {
   const progress = getModels()[modelDir].progress;
   return Object.keys(progress)
     .filter((k) => k !== "main" && !isNaN(Number(k)))
@@ -899,13 +899,13 @@ function getModelSteps(modelDir) {
     .sort((a, b) => a - b);
 }
 
-function getAllSteps() {
+function getAllTokens() {
   const models = getModels();
-  const allSteps = new Set();
+  const allTokens = new Set();
   for (const m of Object.keys(models)) {
-    for (const s of getModelSteps(m)) allSteps.add(s);
+    for (const s of getModelTokens(m)) allTokens.add(s);
   }
-  return [...allSteps].sort((a, b) => a - b);
+  return [...allTokens].sort((a, b) => a - b);
 }
 
 /**
@@ -914,7 +914,7 @@ function getAllSteps() {
  * Otherwise, interpolates between the two nearest checkpoints.
  * Returns null if the token value is outside the model's checkpoint range.
  */
-function interpolateScore(progressData, modelSteps, tokenVal, benchmark, shot, metric) {
+function interpolateScore(progressData, modelTokens, tokenVal, benchmark, shot, metric) {
   // Exact match
   const exact = progressData[String(tokenVal)]?.[benchmark]?.[shot]?.[metric];
   if (exact !== undefined && exact !== null) {
@@ -923,7 +923,7 @@ function interpolateScore(progressData, modelSteps, tokenVal, benchmark, shot, m
   }
   // Find bracketing checkpoints
   let lo = null, hi = null;
-  for (const s of modelSteps) {
+  for (const s of modelTokens) {
     if (s <= tokenVal) lo = s;
     if (s >= tokenVal && hi === null) hi = s;
   }
@@ -948,10 +948,10 @@ function renderAggregateProgressChart() {
   // Compute y-range across all shots for stable axes
   for (const shot of ALL_SHOTS) {
     for (const [modelDir, modelData] of Object.entries(models)) {
-      const steps = getModelSteps(modelDir);
-      for (const step of steps) {
+      const tokens = getModelTokens(modelDir);
+      for (const t of tokens) {
         const result = aggregateScores(checkedTasks, (bench) => {
-          const raw = getScore(modelData.progress, step, bench, shot);
+          const raw = getScore(modelData.progress, t, bench, shot);
           if (raw === undefined) return undefined;
           return applyNorm(raw, bench, null);
         }, macro);
@@ -962,15 +962,15 @@ function renderAggregateProgressChart() {
   const yRange = computeYRange(allYValues);
 
   for (const [modelDir, modelData] of Object.entries(models)) {
-    const steps = getModelSteps(modelDir);
+    const tokens = getModelTokens(modelDir);
     const color = modelData.color || MODEL_COLORS[0];
 
-    const aggResults = steps.map((step) => {
+    const aggResults = tokens.map((t) => {
       return aggregateScores(checkedTasks, (bench) => {
-        const raw = getScore(modelData.progress, step, bench, currentShot);
+        const raw = getScore(modelData.progress, t, bench, currentShot);
         if (raw === undefined) return undefined;
         const score = applyNorm(raw, bench, null);
-        const se = wantSE ? scaleStderr(getCombinedSE(modelData.progress, step, bench, currentShot), bench) : undefined;
+        const se = wantSE ? scaleStderr(getCombinedSE(modelData.progress, t, bench, currentShot), bench) : undefined;
         return { score, stderr: se };
       }, macro);
     });
@@ -979,11 +979,11 @@ function renderAggregateProgressChart() {
     const aggSes = aggResults.map((r) => r ? r.stderr : null);
 
     if (wantSE) {
-      const band = makeBandTrace(steps, scores, aggSes, color);
+      const band = makeBandTrace(tokens, scores, aggSes, color);
       if (band) traces.push(band);
     }
     traces.push({
-      x: steps, y: scores, mode: "lines+markers",
+      x: tokens, y: scores, mode: "lines+markers",
       name: modelData.display_name,
       line: { color, width: 2.5 }, marker: { size: 5 },
       customdata: aggResults.map((r) => r ? { count: r.count, stderr: r.stderr } : null),
@@ -1019,8 +1019,8 @@ function renderSingleProgressChart(benchmark) {
   // y-range across all shots
   for (const shot of ALL_SHOTS) {
     for (const [modelDir, modelData] of Object.entries(models)) {
-      for (const step of getModelSteps(modelDir)) {
-        const raw = getScore(modelData.progress, step, benchmark, shot, metric);
+      for (const t of getModelTokens(modelDir)) {
+        const raw = getScore(modelData.progress, t, benchmark, shot, metric);
         if (raw != null) {
           allYValues.push(currentNormalization === "none"
             ? toDisplayScale(raw, benchmark, metric)
@@ -1032,25 +1032,25 @@ function renderSingleProgressChart(benchmark) {
   const yRange = currentNormalization === "none" ? [0, computeYMax(allYValues)] : computeYRange(allYValues);
 
   for (const [modelDir, modelData] of Object.entries(models)) {
-    const steps = getModelSteps(modelDir);
+    const tokens = getModelTokens(modelDir);
     const color = modelData.color || MODEL_COLORS[0];
-    const ys = steps.map((s) => {
-      const raw = getScore(modelData.progress, s, benchmark, currentShot, metric);
+    const ys = tokens.map((t) => {
+      const raw = getScore(modelData.progress, t, benchmark, currentShot, metric);
       if (raw == null) return null;
       return currentNormalization === "none"
         ? toDisplayScale(raw, benchmark, metric)
         : applyNorm(raw, benchmark, null, metric);
     });
-    const ses = wantSE ? steps.map((s) => {
-      const se = getCombinedSE(modelData.progress, s, benchmark, currentShot, metric);
+    const ses = wantSE ? tokens.map((t) => {
+      const se = getCombinedSE(modelData.progress, t, benchmark, currentShot, metric);
       return scaleStderr(se, benchmark, metric);
     }) : null;
     if (wantSE && ses) {
-      const band = makeBandTrace(steps, ys, ses, color);
+      const band = makeBandTrace(tokens, ys, ses, color);
       if (band) traces.push(band);
     }
     traces.push({
-      x: steps, y: ys, mode: "lines+markers",
+      x: tokens, y: ys, mode: "lines+markers",
       name: modelData.display_name,
       line: { color, width: 2.5 }, marker: { size: 5 },
       customdata: ses || ys.map(() => null),
@@ -1182,40 +1182,40 @@ function computeFilterCriteriaForBench(benchmark, shot) {
   const results = {};
 
   for (const [name, cfg] of Object.entries(filterCriteria)) {
-    // Ordering consistency is a cross-model criterion (ranks models at each step)
+    // Ordering consistency is a cross-model criterion (ranks models at each checkpoint)
     // Uses interpolation since models may have different checkpoint token values
     if (name === "consistency") {
-      const windowSteps = getAllSteps().filter((s) => s >= cfg.minStep && s <= cfg.maxStep);
-      if (windowSteps.length < 2 || modelDirs.length < 2) {
+      const windowTokens = getAllTokens().filter((s) => s >= cfg.minTokens && s <= cfg.maxTokens);
+      if (windowTokens.length < 2 || modelDirs.length < 2) {
         results[name] = { value: null, pass: null };
         continue;
       }
-      // Pre-compute each model's sorted steps for interpolation
-      const modelStepsMap = {};
+      // Pre-compute each model's sorted token values for interpolation
+      const modelTokensMap = {};
       for (const modelDir of modelDirs) {
-        modelStepsMap[modelDir] = getModelSteps(modelDir);
+        modelTokensMap[modelDir] = getModelTokens(modelDir);
       }
-      const stepRankings = [];
-      for (const step of windowSteps) {
+      const tokenRankings = [];
+      for (const tokenVal of windowTokens) {
         const scores = [];
         let valid = true;
         for (const modelDir of modelDirs) {
           const rawScore = interpolateScore(
-            models[modelDir].progress, modelStepsMap[modelDir],
-            step, benchmark, shot, mainMetric
+            models[modelDir].progress, modelTokensMap[modelDir],
+            tokenVal, benchmark, shot, mainMetric
           );
           if (rawScore == null) { valid = false; break; }
           scores.push(filterDisplayScale(rawScore, benchmark));
         }
-        if (valid) stepRankings.push(scores);
+        if (valid) tokenRankings.push(scores);
       }
-      if (stepRankings.length < 2) {
+      if (tokenRankings.length < 2) {
         results[name] = { value: null, pass: null };
         continue;
       }
       const taus = [];
-      for (let i = 0; i < stepRankings.length - 1; i++) {
-        const tau = computeKendallTau(stepRankings[i], stepRankings[i + 1]);
+      for (let i = 0; i < tokenRankings.length - 1; i++) {
+        const tau = computeKendallTau(tokenRankings[i], tokenRankings[i + 1]);
         taus.push(tau != null ? tau : 0);
       }
       const value = taus.reduce((a, b) => a + b, 0) / taus.length;
@@ -1226,18 +1226,18 @@ function computeFilterCriteriaForBench(benchmark, shot) {
     const perModelValues = [];
     for (const modelDir of modelDirs) {
       const progressData = models[modelDir].progress;
-      const steps = Object.keys(progressData)
+      const checkpoints = Object.keys(progressData)
         .filter((k) => k !== "main" && !isNaN(Number(k)))
         .map(Number).sort((a, b) => a - b);
-      const windowSteps = steps.filter((s) => s >= cfg.minStep && s <= cfg.maxStep);
+      const windowTokens = checkpoints.filter((s) => s >= cfg.minTokens && s <= cfg.maxTokens);
       const pairs = [];
-      for (const s of windowSteps) {
+      for (const s of windowTokens) {
         const obj = progressData[String(s)]?.[benchmark]?.[shot]?.[mainMetric];
         if (!obj) continue;
         const rawScore = obj[currentPromptAgg];
         if (rawScore == null) continue;
         const score = filterDisplayScale(rawScore, benchmark);
-        pairs.push({ step: s, score, rawScore, obj });
+        pairs.push({ tokens: s, score, rawScore, obj });
       }
       if (pairs.length < 3 && name !== "nonRandom") continue;
       if (pairs.length < 1) continue;
@@ -1245,7 +1245,7 @@ function computeFilterCriteriaForBench(benchmark, shot) {
       let value = null;
       switch (name) {
         case "monotonicity":
-          value = computeSpearmanRank(pairs.map((p) => p.step), pairs.map((p) => p.score));
+          value = computeSpearmanRank(pairs.map((p) => p.tokens), pairs.map((p) => p.score));
           break;
         case "snr": {
           const scores = pairs.map((p) => p.score);
@@ -1363,14 +1363,14 @@ function renderFilterPanel() {
     const minLabel = document.createElement("label");
     minLabel.textContent = "Tokens (B): ";
     const minInput = document.createElement("input");
-    minInput.type = "number"; minInput.value = cfg.minStep; minInput.min = 0; minInput.max = 120; minInput.step = 1;
-    minInput.addEventListener("change", () => { cfg.minStep = parseFloat(minInput.value) || 0; runFilter(); renderChart(); pushStateToURL(); });
+    minInput.type = "number"; minInput.value = cfg.minTokens; minInput.min = 0; minInput.max = 120; minInput.step = 1;
+    minInput.addEventListener("change", () => { cfg.minTokens = parseFloat(minInput.value) || 0; runFilter(); renderChart(); pushStateToURL(); });
     minLabel.appendChild(minInput); controls.appendChild(minLabel);
     const dash = document.createElement("span"); dash.textContent = "\u2013"; dash.style.color = "var(--fg-muted)";
     controls.appendChild(dash);
     const maxInput = document.createElement("input");
-    maxInput.type = "number"; maxInput.value = cfg.maxStep; maxInput.min = 0; maxInput.max = 120; maxInput.step = 1;
-    maxInput.addEventListener("change", () => { cfg.maxStep = parseFloat(maxInput.value) || 100; runFilter(); renderChart(); pushStateToURL(); });
+    maxInput.type = "number"; maxInput.value = cfg.maxTokens; maxInput.min = 0; maxInput.max = 120; maxInput.step = 1;
+    maxInput.addEventListener("change", () => { cfg.maxTokens = parseFloat(maxInput.value) || 100; runFilter(); renderChart(); pushStateToURL(); });
     controls.appendChild(maxInput);
     const threshLabel = document.createElement("label");
     threshLabel.textContent = "Threshold " + cfg.direction + " ";
@@ -1491,7 +1491,7 @@ function hideFilterUI() {
 function exportFilterCriteria() {
   const data = {};
   for (const [name, cfg] of Object.entries(filterCriteria)) {
-    data[name] = { enabled: cfg.enabled, minStep: cfg.minStep, maxStep: cfg.maxStep, threshold: cfg.threshold };
+    data[name] = { enabled: cfg.enabled, minTokens: cfg.minTokens, maxTokens: cfg.maxTokens, threshold: cfg.threshold };
   }
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -1508,8 +1508,8 @@ function importFilterCriteria(json) {
     if (!filterCriteria[name]) continue;
     const cfg = filterCriteria[name];
     if (typeof vals.enabled === "boolean") cfg.enabled = vals.enabled;
-    if (typeof vals.minStep === "number") cfg.minStep = vals.minStep;
-    if (typeof vals.maxStep === "number") cfg.maxStep = vals.maxStep;
+    if (typeof vals.minTokens === "number") cfg.minTokens = vals.minTokens;
+    if (typeof vals.maxTokens === "number") cfg.maxTokens = vals.maxTokens;
     if (typeof vals.threshold === "number") cfg.threshold = vals.threshold;
   }
   filterPanelRendered = false;
@@ -1537,7 +1537,7 @@ function pushStateToURL() {
   // Encode filter criteria compactly: name=enabled,min,max,thresh
   const fc = [];
   for (const [name, cfg] of Object.entries(filterCriteria)) {
-    fc.push(name + ":" + (cfg.enabled ? "1" : "0") + "," + cfg.minStep + "," + cfg.maxStep + "," + cfg.threshold);
+    fc.push(name + ":" + (cfg.enabled ? "1" : "0") + "," + cfg.minTokens + "," + cfg.maxTokens + "," + cfg.threshold);
   }
   p.set("fc", fc.join(";"));
   history.replaceState(null, "", "?" + p.toString());
@@ -1562,8 +1562,8 @@ function restoreStateFromURL() {
       const [en, min, max, thresh] = vals.split(",");
       const cfg = filterCriteria[name];
       cfg.enabled = en === "1";
-      if (!isNaN(Number(min))) cfg.minStep = Number(min);
-      if (!isNaN(Number(max))) cfg.maxStep = Number(max);
+      if (!isNaN(Number(min))) cfg.minTokens = Number(min);
+      if (!isNaN(Number(max))) cfg.maxTokens = Number(max);
       if (!isNaN(Number(thresh))) cfg.threshold = Number(thresh);
     }
   }

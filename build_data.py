@@ -1058,8 +1058,8 @@ def main():
                     if not ckpt_path.is_dir() or ckpt_name.startswith("."):
                         continue
 
-                    step = parse_checkpoint_name(ckpt_name)
-                    if step is None:
+                    tokens_b = parse_checkpoint_name(ckpt_name)
+                    if tokens_b is None:
                         continue
 
                     scores = process_checkpoint(
@@ -1067,12 +1067,12 @@ def main():
                     )
                     if scores:
                         # Merge into progress: each benchmark gets its shot data
-                        if step not in progress:
-                            progress[step] = {}
+                        if tokens_b not in progress:
+                            progress[tokens_b] = {}
                         for bench, shot_data in scores.items():
-                            if bench not in progress[step]:
-                                progress[step][bench] = {}
-                            progress[step][bench].update(shot_data)
+                            if bench not in progress[tokens_b]:
+                                progress[tokens_b][bench] = {}
+                            progress[tokens_b][bench].update(shot_data)
                             # Track discovered metrics
                             for s, metric_data in shot_data.items():
                                 if bench not in discovered_metrics:
@@ -1117,9 +1117,9 @@ def main():
         # across all models in this language (it's the final checkpoint)
         max_tokens = 0
         for md in lang_data["models"].values():
-            for step_key in md["progress"]:
-                if isinstance(step_key, (int, float)) and step_key != "main":
-                    max_tokens = max(max_tokens, step_key)
+            for token_key in md["progress"]:
+                if isinstance(token_key, (int, float)) and token_key != "main":
+                    max_tokens = max(max_tokens, token_key)
         for md in lang_data["models"].values():
             if "main" in md["progress"] and max_tokens > 0:
                 md["progress"][max_tokens] = md["progress"].pop("main")
