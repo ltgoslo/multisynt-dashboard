@@ -893,6 +893,7 @@ def aggregate_partitions(partition_metrics_list):
             "mean": round(statistics.mean(values), 6),
             "median": round(statistics.median(values), 6),
             "min": round(min(values), 6),
+            "first": round(values[0], 6),
         }
 
         max_idx = values.index(max(values))
@@ -903,6 +904,9 @@ def aggregate_partitions(partition_metrics_list):
         min_idx = values.index(min(values))
         if stderrs[min_idx] is not None:
             entry["min_stderr"] = round(stderrs[min_idx], 6)
+
+        if stderrs[0] is not None:
+            entry["first_stderr"] = round(stderrs[0], 6)
 
         if all(se is not None for se in stderrs):
             n = len(stderrs)
