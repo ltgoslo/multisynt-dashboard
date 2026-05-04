@@ -244,9 +244,12 @@ TASK_CONFIG = {
         "category": "language understanding",
     },
     # ── Norwegian tasks ──
+    # Categories and baselines mirror github.com/ltgoslo/noreval-stats
+    # (metrics_setup.yaml). The `path` field is set when the task's
+    # results live in a non-default subdirectory.
     "ask_gec": {
         "pretty_name": "ASK GEC",
-        "main_metric": "exact_match",
+        "main_metric": "errant",
         "random_baseline": 0.0,
         "max_performance": 1.0,
         "metric_scale": "unit",
@@ -256,6 +259,31 @@ TASK_CONFIG = {
         "pretty_name": "NCB (Norwegian Cloze)",
         "main_metric": "acc",
         "random_baseline": 0.5,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "linguistic knowledge",
+    },
+    "nocola": {
+        "pretty_name": "NoCoLA",
+        "main_metric": "acc",
+        "random_baseline": 0.5,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "linguistic knowledge",
+    },
+    "noreval_multiblimp": {
+        "pretty_name": "MultiBLiMP (Sámi)",
+        "main_metric": "acc",
+        "random_baseline": 0.5,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "linguistic knowledge",
+        "aggregator": "multiblimp",
+    },
+    "slide": {
+        "pretty_name": "SLIDE (Scandinavian LID)",
+        "main_metric": "acc",
+        "random_baseline": 0.21289208633093526,
         "max_performance": 1.0,
         "metric_scale": "unit",
         "category": "linguistic knowledge",
@@ -274,20 +302,28 @@ TASK_CONFIG = {
         "random_baseline": 0.2,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "norcommonsenseqa_nob": {
         "pretty_name": "CommonsenseQA (Bokmål)",
         "main_metric": "acc",
-        "random_baseline": 0.25,
+        "random_baseline": 0.2,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
+    },
+    "norec_document": {
+        "pretty_name": "NoReC Document Sentiment",
+        "main_metric": "f1",
+        "random_baseline": 0.5,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "language understanding",
     },
     "norec_sentence": {
         "pretty_name": "NoReC Sentence Sentiment",
         "main_metric": "f1",
-        "random_baseline": 0.4852,
+        "random_baseline": 0.5,
         "max_performance": 1.0,
         "metric_scale": "unit",
         "category": "language understanding",
@@ -311,18 +347,38 @@ TASK_CONFIG = {
     "noropenbookqa_nno": {
         "pretty_name": "OpenBookQA (Nynorsk)",
         "main_metric": "acc",
-        "random_baseline": 0.20,
+        "random_baseline": 0.25,
         "max_performance": 1.0,
         "metric_scale": "unit",
         "category": "language understanding",
+        "path": "noropenbookqa/noropenbookqa_nno",
     },
     "noropenbookqa_nob": {
         "pretty_name": "OpenBookQA (Bokmål)",
         "main_metric": "acc",
-        "random_baseline": 0.20,
+        "random_baseline": 0.25,
         "max_performance": 1.0,
         "metric_scale": "unit",
         "category": "language understanding",
+        "path": "noropenbookqa/noropenbookqa_nob",
+    },
+    "noropenbookqa_no_fact_nno": {
+        "pretty_name": "OpenBookQA No-Fact (Nynorsk)",
+        "main_metric": "acc",
+        "random_baseline": 0.25,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "world knowledge & reasoning",
+        "path": "noropenbookqa/noropenbookqa_no_fact_nno",
+    },
+    "noropenbookqa_no_fact_nob": {
+        "pretty_name": "OpenBookQA No-Fact (Bokmål)",
+        "main_metric": "acc",
+        "random_baseline": 0.25,
+        "max_performance": 1.0,
+        "metric_scale": "unit",
+        "category": "world knowledge & reasoning",
+        "path": "noropenbookqa/noropenbookqa_no_fact_nob",
     },
     "norquad": {
         "pretty_name": "NorQuAD",
@@ -334,51 +390,51 @@ TASK_CONFIG = {
     },
     "nortruthfulqa_gen_nno": {
         "pretty_name": "TruthfulQA Gen (Nynorsk)",
-        "main_metric": "bleu_max",
+        "main_metric": "rougeL_max",
         "random_baseline": 0.0,
         "max_performance": 100.0,
         "metric_scale": "percent",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "nortruthfulqa_gen_nob": {
         "pretty_name": "TruthfulQA Gen (Bokmål)",
-        "main_metric": "bleu_max",
+        "main_metric": "rougeL_max",
         "random_baseline": 0.0,
         "max_performance": 100.0,
         "metric_scale": "percent",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "nortruthfulqa_mc_nno": {
         "pretty_name": "TruthfulQA MC (Nynorsk)",
         "main_metric": "acc",
-        "random_baseline": 0.2456,
+        "random_baseline": 0.23311814890762259,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "nortruthfulqa_mc_nob": {
         "pretty_name": "TruthfulQA MC (Bokmål)",
         "main_metric": "acc",
-        "random_baseline": 0.254,
+        "random_baseline": 0.23170337745132827,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "nrk_quiz_qa_nno": {
         "pretty_name": "NRK Quiz QA (Nynorsk)",
         "main_metric": "acc",
-        "random_baseline": 0.2676,
+        "random_baseline": 0.27884711779448623,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "nrk_quiz_qa_nob": {
         "pretty_name": "NRK Quiz QA (Bokmål)",
         "main_metric": "acc",
-        "random_baseline": 0.2791,
+        "random_baseline": 0.2836296296296296,
         "max_performance": 1.0,
         "metric_scale": "unit",
-        "category": "world knowledge",
+        "category": "world knowledge & reasoning",
     },
     "norrewrite_instruct": {
         "pretty_name": "NorRewrite Instruct",
@@ -438,6 +494,22 @@ TASK_CONFIG = {
     },
     "tatoeba_nob_eng": {
         "pretty_name": "Tatoeba (Bokmål→EN)",
+        "main_metric": "bleu",
+        "random_baseline": 0.0,
+        "max_performance": 100.0,
+        "metric_scale": "percent",
+        "category": "translation",
+    },
+    "tatoeba_nob_sme": {
+        "pretty_name": "Tatoeba (Bokmål→Sámi)",
+        "main_metric": "bleu",
+        "random_baseline": 0.0,
+        "max_performance": 100.0,
+        "metric_scale": "percent",
+        "category": "translation",
+    },
+    "tatoeba_sme_nob": {
+        "pretty_name": "Tatoeba (Sámi→Bokmål)",
         "main_metric": "bleu",
         "random_baseline": 0.0,
         "max_performance": 100.0,
@@ -743,8 +815,17 @@ def parse_model_dir(name):
         return m.group(1).lower(), m.group(2)
     return None, None
 
-# Metrics to exclude globally
-EXCLUDED_METRICS = {"bleu_diff", "rouge1_diff", "rouge2_diff", "rougeL_diff"}
+# Metrics to exclude globally. `bypass` is the lm-eval placeholder used when
+# a task ran without computing a metric (the real score is patched in later).
+EXCLUDED_METRICS = {"bleu_diff", "rouge1_diff", "rouge2_diff", "rougeL_diff", "bypass"}
+
+# Per-benchmark metric exclusions. ask_gec's `exact_match` is the lm-eval
+# placeholder; the real metric is ERRANT F0.5 (`errant`), merged in by
+# merge_errant_scores.py.
+EXCLUDED_METRICS_PER_BENCHMARK = {
+    "ask_gec": {"exact_match"},
+    "noreval_multiblimp": {"acc_norm"},
+}
 
 
 def find_latest_results_json(directory):
@@ -796,6 +877,9 @@ def extract_benchmark_scores(results_json_path, benchmark_name, task_config_entr
     metric_scale = (
         task_config_entry.get("metric_scale", "unit") if task_config_entry else "unit"
     )
+    bench_exclusions = EXCLUDED_METRICS | EXCLUDED_METRICS_PER_BENCHMARK.get(
+        benchmark_name, set()
+    )
 
     metrics = {}
     for task_key, task_results in results.items():
@@ -823,7 +907,7 @@ def extract_benchmark_scores(results_json_path, benchmark_name, task_config_entr
             if "_stderr," in key:
                 continue
             metric_name, metric_suffix = key.rsplit(",", 1)
-            if metric_name in EXCLUDED_METRICS:
+            if metric_name in bench_exclusions:
                 continue
             if isinstance(val, (int, float)):
                 se = _get_stderr(
@@ -847,7 +931,7 @@ def extract_benchmark_scores(results_json_path, benchmark_name, task_config_entr
             if "_stderr," in key:
                 continue
             metric_name, metric_suffix = key.rsplit(",", 1)
-            if metric_name in EXCLUDED_METRICS:
+            if metric_name in bench_exclusions:
                 continue
             if isinstance(val, (int, float)):
                 ns_entry = n_samples_dict.get(group_key, {})
@@ -862,6 +946,56 @@ def extract_benchmark_scores(results_json_path, benchmark_name, task_config_entr
                 metrics[metric_name] = (val, se)
 
     return metrics if metrics else None
+
+
+def process_multiblimp(bench_path):
+    """Aggregate noreval_multiblimp's per-phenomenon subtask result dirs.
+
+    Each `noreval_multiblimp_<code>/` subdir holds a single results JSON.
+    Returns a single (value, stderr) dict mimicking one prompt-variant for
+    `aggregate_partitions` — accuracy is micro-averaged (sample-weighted)
+    across all subtasks, matching how `noreval_multiblimp` is reported in
+    noreval-stats.
+    """
+    if not os.path.isdir(bench_path):
+        return None
+    sub_dirs = sorted(
+        d for d in os.listdir(bench_path)
+        if os.path.isdir(os.path.join(bench_path, d))
+        and d.startswith("noreval_multiblimp_")
+    )
+    if not sub_dirs:
+        return None
+
+    total_correct = 0.0
+    total_n = 0
+    for sub in sub_dirs:
+        sub_path = os.path.join(bench_path, sub)
+        results_file = find_latest_results_json(sub_path)
+        if results_file is None:
+            continue
+        with open(results_file) as f:
+            data = json.load(f)
+        task_results = data.get("results", {}).get(sub)
+        if not task_results:
+            continue
+        acc = task_results.get("acc,none")
+        n = (
+            data.get("n-samples", {}).get(sub, {}).get("effective")
+            or data.get("n-samples", {}).get(sub, {}).get("original")
+        )
+        if acc is None or not n:
+            continue
+        total_correct += acc * n
+        total_n += n
+
+    if total_n == 0:
+        return None
+
+    micro_acc = total_correct / total_n
+    # Stderr from binomial proportion on the pooled set
+    se = math.sqrt(micro_acc * (1 - micro_acc) / total_n) if 0 < micro_acc < 1 else 0.0
+    return {"acc": (micro_acc, se)}
 
 
 def aggregate_partitions(partition_metrics_list):
@@ -940,40 +1074,50 @@ def process_checkpoint(ckpt_path, task_configs, shot="0"):
     """
     scores = {}
     for benchmark, config in task_configs.items():
-        bench_path = os.path.join(ckpt_path, benchmark)
+        rel_path = config.get("path", benchmark)
+        bench_path = os.path.join(ckpt_path, rel_path)
         if not os.path.isdir(bench_path):
             continue
 
-        # Collect partitions (p0, p1, p2, ...)
-        partitions = sorted(
-            [
-                d
-                for d in os.listdir(bench_path)
-                if os.path.isdir(os.path.join(bench_path, d))
-                and d.startswith("p")
-                and d[1:].isdigit()
-            ]
-        )
-
         partition_results = []
-        if partitions:
-            # Each partition is like a prompt variant
-            for part in partitions:
-                part_path = os.path.join(bench_path, part)
-                results_file = find_latest_results_json(part_path)
-                if results_file is None:
-                    continue
-                metrics = extract_benchmark_scores(results_file, benchmark, config)
-                partition_results.append(metrics)
+
+        if config.get("aggregator") == "multiblimp":
+            # Custom aggregation: each phenomenon subdir is a sub-eval, not a
+            # prompt variant. Pool into one micro-averaged score that becomes a
+            # single prompt-variant entry.
+            agg_metrics = process_multiblimp(bench_path)
+            if agg_metrics:
+                partition_results.append(agg_metrics)
         else:
-            # No partition dirs — look for results directly under bench_path
-            results_file = find_latest_results_json(bench_path)
-            if results_file is not None:
-                metrics = extract_benchmark_scores(
-                    results_file, benchmark, config
-                )
-                if metrics:
+            # Collect partitions (p0, p1, p2, ...)
+            partitions = sorted(
+                [
+                    d
+                    for d in os.listdir(bench_path)
+                    if os.path.isdir(os.path.join(bench_path, d))
+                    and d.startswith("p")
+                    and d[1:].isdigit()
+                ]
+            )
+
+            if partitions:
+                # Each partition is like a prompt variant
+                for part in partitions:
+                    part_path = os.path.join(bench_path, part)
+                    results_file = find_latest_results_json(part_path)
+                    if results_file is None:
+                        continue
+                    metrics = extract_benchmark_scores(results_file, benchmark, config)
                     partition_results.append(metrics)
+            else:
+                # No partition dirs — look for results directly under bench_path
+                results_file = find_latest_results_json(bench_path)
+                if results_file is not None:
+                    metrics = extract_benchmark_scores(
+                        results_file, benchmark, config
+                    )
+                    if metrics:
+                        partition_results.append(metrics)
 
         if not partition_results:
             continue
@@ -986,8 +1130,20 @@ def process_checkpoint(ckpt_path, task_configs, shot="0"):
 
 
 def discover_language_tasks(lang_dir):
-    """Discover which tasks exist for a language by scanning all models/checkpoints."""
-    tasks = set()
+    """Discover which configured tasks have data in this language.
+
+    Returns the set of TASK_CONFIG keys whose `path` (or default `<key>`) exists
+    under any model's checkpoint dir, plus any unrecognized top-level dirs (so
+    the caller can warn). Honors the optional `path` field for tasks whose
+    results live in a non-default subdirectory (e.g. noropenbookqa subtasks).
+    """
+    found = set()
+    unknown = set()
+    configured_paths = {
+        cfg.get("path", key): key for key, cfg in TASK_CONFIG.items()
+    }
+    nested_parents = {p.split("/", 1)[0] for p in configured_paths if "/" in p}
+
     for model_dir in os.listdir(lang_dir):
         model_path = os.path.join(lang_dir, model_dir)
         if not os.path.isdir(model_path) or model_dir.startswith("."):
@@ -996,11 +1152,25 @@ def discover_language_tasks(lang_dir):
             ckpt_path = os.path.join(model_path, ckpt)
             if not os.path.isdir(ckpt_path) or ckpt.startswith("."):
                 continue
-            for task in os.listdir(ckpt_path):
-                task_path = os.path.join(ckpt_path, task)
-                if os.path.isdir(task_path) and not task.startswith("."):
-                    tasks.add(task)
-    return tasks
+            for top in os.listdir(ckpt_path):
+                top_path = os.path.join(ckpt_path, top)
+                if not os.path.isdir(top_path) or top.startswith("."):
+                    continue
+                # Direct match
+                if top in configured_paths:
+                    found.add(configured_paths[top])
+                    continue
+                # Nested match (e.g. noropenbookqa/<subtask>)
+                if top in nested_parents:
+                    for sub in os.listdir(top_path):
+                        sub_full = f"{top}/{sub}"
+                        if sub_full in configured_paths and os.path.isdir(
+                            os.path.join(top_path, sub)
+                        ):
+                            found.add(configured_paths[sub_full])
+                    continue
+                unknown.add(top)
+    return found, unknown
 
 
 def main():
@@ -1016,14 +1186,11 @@ def main():
         print(f"\n=== Processing language: {lang_name} ===")
 
         # Discover tasks and build metrics_setup for this language
-        lang_tasks = discover_language_tasks(str(lang_dir))
-        task_configs = {}
+        lang_tasks, unknown_tasks = discover_language_tasks(str(lang_dir))
+        task_configs = {task: TASK_CONFIG[task] for task in sorted(lang_tasks)}
         discovered_metrics = {}
-        for task in sorted(lang_tasks):
-            if task in TASK_CONFIG:
-                task_configs[task] = TASK_CONFIG[task]
-            else:
-                print(f"  WARNING: No config for task '{task}', skipping")
+        for unknown in sorted(unknown_tasks):
+            print(f"  WARNING: No config for task '{unknown}', skipping")
 
         lang_data = {
             "metrics_setup": {},
